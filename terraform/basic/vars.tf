@@ -3,6 +3,6 @@ variable "proxmox_node" {
 }
 
 variable "template" {
-  default = "debian-12.7.0-amd64"
+  default = "debian-12-generic-amd64-cloudinit-template"
 }
 
