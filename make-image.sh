@@ -6,21 +6,26 @@
 # 4. which storage is being utilized (script uses local-zfs)
 ###############
 
-rm -f debian-12-generic-amd64.qcow2
-wget -q https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-generic-amd64.qcow2
-sudo virt-customize -a debian-12-generic-amd64.qcow2 --install qemu-guest-agent
-sudo virt-customize -a debian-12-generic-amd64.qcow2 --ssh-inject root:file:~/.ssh/id_rsa.pub
-sudo qm destroy 5000
-sudo qm create 5000 --name "debian-12-cloudinit-template" --memory 2048 --cores 2 --net0 virtio,bridge=vmbr100
-sudo qm importdisk 5000 debian-12-generic-amd64.qcow2 local-lvm
-sudo qm set 5000 --scsihw virtio-scsi-pci --scsi0 local-lvm:vm-5000-disk-0
-sudo qm set 5000 --boot c --bootdisk scsi0
-sudo qm set 5000 --ide2 local-lvm:cloudinit
-sudo qm set 5000 --serial0 socket --vga serial0
-sudo qm set 5000 --agent enabled=1
-# sudo qm set 5000 --sshkeys /tmp/sshkey.pub
-sudo qm template 5000
-rm -f debian-12-generic-amd64.qcow2
-echo "next up, clone VM, then expand the disk"
-echo "you also still need to copy ssh keys to the newly cloned VM"
+IMAGE="debian-12-generic-amd64.qcow2"
+IMAGE_URL="https://cloud.debian.org/images/cloud/bookworm/latest/$IMAGE"
+SSH_KEY_PATH="/root/.ssh/id_rsa.pub"
+VMID="5000"
+TPL_NAME="debian-12-cloudinit-template"
+
+
+rm -f $IMAGE
+wget -q $IMAGE_URL
+sudo virt-customize -a $IMAGE --install qemu-guest-agent
+sudo virt-customize -a $IMAGE --ssh-inject root:file:$SSH_KEY_PATH
+sudo qm destroy $VMID
+sudo qm create $VMID --name $TPL_NAME --memory 2048 --cores 2 --net0 virtio,bridge=vmbr100
+sudo qm importdisk $VMID $IMAGE local-lvm
+sudo qm set $VMID --scsihw virtio-scsi-pci --scsi0 local-lvm:vm-5000-disk-0
+sudo qm set $VMID --boot c --bootdisk scsi0
+sudo qm set $VMID --ide2 local-lvm:cloudinit
+sudo qm set $VMID --serial0 socket --vga serial0
+sudo qm set $VMID --agent enabled=1
+# sudo qm set $VMID --sshkeys $SSH_KEY_PATH
+sudo qm template $VMID
+rm -f $IMAGE
 
