@@ -1,0 +1,4 @@
+monitoring_ns: "monitoring"
+
+venv_dir: "/.venv"
+

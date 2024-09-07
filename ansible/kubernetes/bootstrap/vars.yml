@@ -3,7 +3,4 @@ kubernetes_user: "debian"
 
 join_location: "/tmp/join_command.out"
 
-monitoring_ns: "monitoring"
-
-venv_dir: "/.venv"
 
