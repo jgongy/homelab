@@ -1,0 +1,29 @@
+---
+- hosts: control_plane
+  remote_user: debian
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Add Helm repository
+      deb822_repository:
+        name: helm
+        types: [deb]
+        architectures: [amd64]
+        uris: "https://baltocdn.com/helm/stable/debian/"
+        signed_by: "https://baltocdn.com/helm/signing.asc"
+        suites: [all]
+        components:
+          - main
+        state: present
+        enabled: yes
+    
+    - name: Install Helm
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+        - helm
+  
