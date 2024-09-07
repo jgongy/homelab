@@ -1,0 +1,29 @@
+---
+- hosts: control_plane
+  remote_user: debian
+  become: yes
+  gather_facts: yes
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Install Python
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+          - python3.11
+          - python3.11-venv
+
+    - name: Create kubernetes venv
+      ansible.builtin.pip:
+        name: "{{ packages }}"
+        virtualenv: "{{ venv_dir }}/kubernetes"
+        virtualenv_command: "python3.11 -m venv"
+      vars:
+        packages:
+          - kubernetes
+

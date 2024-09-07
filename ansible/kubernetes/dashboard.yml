@@ -1,0 +1,30 @@
+---
+- hosts: control_plane
+  remote_user: debian
+  gather_facts: yes
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Create monitoring namespace
+      kubernetes.core.k8s:
+        name: "{{ monitoring_ns }}"
+        api_version: v1
+        kind: Namespace
+        state: present
+      vars:
+        ansible_python_interpreter: "{{ venv_dir }}/kubernetes/bin/python3.11"
+
+    - name: Add Kubernetes Dashboard repository
+      kubernetes.core.helm_repository:
+        name: kubernetes-dashboard
+        repo_url: "https://kubernetes.github.io/dashboard/"
+
+    - name: Install Kubernetes Dashboard
+      run_once: true
+      kubernetes.core.helm:
+        name: kubernetes-dashboard
+        kubeconfig: "{{ ansible_env.HOME }}/.kube/config"
+        chart_ref: kubernetes-dashboard/kubernetes-dashboard
+        release_namespace: "{{ monitoring_ns }}"
