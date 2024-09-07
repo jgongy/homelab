@@ -7,11 +7,12 @@
     - vars.yml
 
   tasks:
-  - name: Copy join command from Ansible host to the worker nodes.
-    copy:
-      src: "{{ join_location }}"
-      dest: "{{ join_location }}"
-      mode: 0777
+    - name: Copy join command from Ansible host to the worker nodes.
+      copy:
+        src: "{{ join_location }}"
+        dest: "{{ join_location }}"
+        mode: 0777
 
-  - name: Join the Worker nodes to the cluster.
-    command: "sh {{ join_location }}"
+    - name: Join the Worker nodes to the cluster.
+      command: "sh {{ join_location }}"
+
