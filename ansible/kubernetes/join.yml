@@ -1,0 +1,17 @@
+---
+- hosts: worker_nodes
+  become: yes
+  gather_facts: yes
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+  - name: Copy join command from Ansible host to the worker nodes.
+    copy:
+      src: "{{ join_location }}"
+      dest: "{{ join_location }}"
+      mode: 0777
+
+  - name: Join the Worker nodes to the cluster.
+    command: "sh {{ join_location }}"

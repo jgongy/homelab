@@ -1,16 +1,7 @@
-[all]
-192.168.8.221
-192.168.8.231
-192.168.8.232
-192.168.8.241
+[control_plane]
+control1 ansible_host=192.168.8.221 ansible_user=root
 
-[kube_server]
-192.168.8.221
-
-[kube_agents]
-192.168.8.231
-192.168.8.232
-
-[kube_storage]
-192.168.8.241
-
+[worker_nodes]
+worker1 ansible_host=192.168.8.231 ansible_user=root
+worker2 ansible_host=192.168.8.232 ansible_user=root
+worker3 ansible_host=192.168.8.241 ansible_user=root
