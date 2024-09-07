@@ -30,6 +30,7 @@
         src: /etc/kubernetes/admin.conf
         dest: "/home/{{ kubernetes_user }}/.kube/config"
         owner: "{{ kubernetes_user }}"
+        mode: 0600
 
     - name: Apply Calico networking
       become: yes
