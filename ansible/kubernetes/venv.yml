@@ -26,4 +26,5 @@
       vars:
         packages:
           - kubernetes
+          - kubernetes-validate
 

@@ -28,3 +28,31 @@
         kubeconfig: "{{ ansible_env.HOME }}/.kube/config"
         chart_ref: kubernetes-dashboard/kubernetes-dashboard
         release_namespace: "{{ monitoring_ns }}"
+
+    - name: Create a Service Account for accessing the dashboard
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('template', 'sa.j2') | from_yaml }}"
+        validate:
+          fail_on_error: yes
+      vars:
+        ansible_python_interpreter: "{{ venv_dir }}/kubernetes/bin/python3.11"
+
+    - name: Create a Cluster Role Binding for the Service Account
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('template', 'crb.j2') | from_yaml }}"
+        validate:
+          fail_on_error: yes
+      vars:
+        ansible_python_interpreter: "{{ venv_dir }}/kubernetes/bin/python3.11"
+
+    - name: Create a long-lived API token for the Service Account
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('template', 'secret.j2') | from_yaml }}"
+        validate:
+          fail_on_error: yes
+      vars:
+        ansible_python_interpreter: "{{ venv_dir }}/kubernetes/bin/python3.11"
+
