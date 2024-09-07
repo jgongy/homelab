@@ -1,0 +1,9 @@
+---
+- name: Install Helm
+  import_playbook: helm.yml
+
+- name: Create virtual environment
+  import_playbook: venv.yml
+
+- name: Initialize the Kubernetes dashboard
+  import_playbook: dashboard.yml
