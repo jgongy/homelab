@@ -4,17 +4,41 @@ terraform {
       source = "telmate/proxmox"
       version = "3.0.1-rc4"
     }
+    bpg-proxmox = {
+      source = "bpg/proxmox"
+      version = "0.63.0"
+    }
   }
+}
+
+provider "bpg-proxmox" {
+  endpoint      = "https://ui.proxmox.local:8006/"
+  api_token     = "terraform@pve!provider=33b36136-9466-4f19-ac35-d4fd762c1a03"
+  insecure      = true
+  ssh {
+    agent    = true
+    username = "terraform"
+  }
+}
+
+resource "proxmox_virtual_environment_network_linux_bridge" "vmbr200" {
+  provider   = bpg-proxmox
+  name       = "vmbr200"
+  node_name  = var.proxmox_node
+  address    = var.network_cidr
+  vlan_aware = true
+  comment    = "Kubernetes bridge"
 }
 
 provider "proxmox" {
   pm_api_url          = "https://ui.proxmox.local:8006/api2/json"
-  pm_api_token_id     = "terraform@pam!terraform-api-key"
-  pm_api_token_secret = "ae0cd304-bafd-46fb-b83c-7f4df2ded6b3"
+  pm_api_token_id     = "terraform@pve!provider"
+  pm_api_token_secret = "33b36136-9466-4f19-ac35-d4fd762c1a03"
   pm_tls_insecure     = true
 }
 
 resource "proxmox_vm_qemu" "kube-server" {
+  provider    = proxmox
   count       = 1
   name        = "kube-server-0${count.index + 1}"
   vmid        = "20${count.index + 1}"
@@ -71,6 +95,7 @@ resource "proxmox_vm_qemu" "kube-server" {
 }
 
 resource "proxmox_vm_qemu" "kube-agent" {
+  provider    = proxmox
   count       = 2
   name        = "kube-agent-0${count.index + 1}"
   vmid        = "30${count.index + 1}"
@@ -181,4 +206,3 @@ resource "proxmox_vm_qemu" "kube-storage" {
     ]
   }
 }
-
