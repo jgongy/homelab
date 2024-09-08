@@ -1,0 +1,27 @@
+---
+- hosts: "laptops"
+  become: yes
+  gather_facts: yes
+
+  vars_files:
+      - vars.yml
+
+  tasks:
+    - name: Prevent shutdown on lid close
+      lineinfile:
+        dest: /etc/systemd/logind.conf
+        regexp: "^#{{ item.key }}=.*$"
+        line: "{{ item.key }}={{ item.value }}"
+      loop:
+        - key: HandleLidSwitch
+          value: ignore
+        - key: HandleLidSwitchExternalPower
+          value: ignore
+        - key: HandleLidSwitchDocked
+          value: ignore
+
+    - name: Restart system-logind.service
+      service:
+        name: systemd-logind
+        state: restarted
+    

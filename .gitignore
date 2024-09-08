@@ -1,3 +1,7 @@
+.envrc
+.direnv/
+.venv/
+
 .terraform.lock.hcl
 .terraform/
 
