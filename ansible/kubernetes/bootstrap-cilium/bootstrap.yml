@@ -1,0 +1,13 @@
+---
+- name: Install required packages on each machine
+  import_playbook: install.yml
+
+- name: Initialize Kubernetes on the control plane
+  import_playbook: init.yml
+
+- name: Join worker nodes to the cluster
+  import_playbook: join.yml
+
+- name: Install Cilium
+  import_playbook: cilium.yml
+

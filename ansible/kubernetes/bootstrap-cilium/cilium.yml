@@ -1,0 +1,54 @@
+---
+- hosts: control_plane
+  remote_user: debian
+  gather_facts: yes
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Add Helm package repository
+      become: yes
+      deb822_repository:
+        name: helm
+        types: [deb]
+        architectures: [amd64]
+        uris: "https://baltocdn.com/helm/stable/debian/"
+        signed_by: "https://baltocdn.com/helm/signing.asc"
+        suites: [all]
+        components:
+          - main
+        state: present
+        enabled: yes
+
+    - name: Install Helm
+      become: yes
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+          - helm
+
+    - name: Add Cilium Helm repository
+      kubernetes.core.helm_repository:
+        name: cilium
+        repo_url: "https://helm.cilium.io/"
+
+    - name: Install Cilium
+      run_once: true
+      kubernetes.core.helm:
+        name: cilium
+        kubeconfig: "{{ ansible_env.HOME }}/.kube/config"
+        chart_ref: cilium/cilium
+        chart_version: 1.16.1
+        set_values:
+          - value: "kubeProxyReplacement=true"
+            value_type: raw
+          - value: "k8sServiceHost={{ ansible_default_ipv4.address }}"
+            value_type: string
+          - value: "k8sServicePort=6443"
+            value_type: raw
+        release_namespace: kube-system
+    
