@@ -1,7 +1,7 @@
 [control_plane]
-control1 ansible_host=192.168.8.220
+control1 ansible_host=10.20.200.220
 
 [worker_nodes]
-worker1 ansible_host=192.168.8.230
-worker2 ansible_host=192.168.8.231
-worker3 ansible_host=192.168.8.240
+worker1 ansible_host=10.20.200.230
+worker2 ansible_host=10.20.200.231
+worker3 ansible_host=10.20.200.240

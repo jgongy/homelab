@@ -14,13 +14,13 @@ resource "proxmox_virtual_environment_vm" "worker" {
 
     ip_config {
       ipv4 {
-        address = "192.168.8.23${count.index}/24"
-        gateway = "192.168.8.1"
+        address = "10.20.200.23${count.index}/8"
+        gateway = "10.0.0.1"
       }
     }
     ip_config {
       ipv4 {
-        address = "192.168.200.23${count.index}/24"
+        address = "172.20.200.23${count.index}/24"
       }
     }
 

@@ -13,7 +13,7 @@ data "local_file" "ssh_public_key" {
 
 provider "proxmox" {
   endpoint      = "https://ui.proxmox.local:8006/"
-  api_token     = "terraform@pve!provider=33b36136-9466-4f19-ac35-d4fd762c1a03"
+  api_token     = "terraform@pve!provider=e73f8a19-403d-420d-94a7-7e85c2e792be"
   insecure      = true
   ssh {
     agent    = false
