@@ -3,7 +3,7 @@ variable "proxmox_node" {
 }
 
 variable "network_cidr" {
-  default = "192.168.200.0/24"
+  default = "172.20.0.0/16"
 }
 
 variable "template" {

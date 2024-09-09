@@ -20,7 +20,7 @@ resource "proxmox_virtual_environment_vm" "storage" {
     }
     ip_config {
       ipv4 {
-        address = "172.20.200.24${count.index}/24"
+        address = "172.20.200.24${count.index}/16"
       }
     }
 

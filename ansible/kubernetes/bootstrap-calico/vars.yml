@@ -1,4 +1,4 @@
-pod_cidr: "172.16.200.0/22"
+pod_cidr: "192.168.200.0/22"
 kubernetes_user: "debian"
 
 join_location: "/tmp/join_command.out"
