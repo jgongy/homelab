@@ -50,9 +50,11 @@
             value_type: string
           - value: "k8sServicePort=6443"
             value_type: raw
-          # - value: "hubble.relay.enabled=true"
-          #   value_type: raw
-          # - value: "hubble.ui.enabled=true"
-          #   value_type: raw
+          - value: "ipam.operator.clusterPoolIPv4PodCIDRList=172.16.0.0/14"
+            value_type: raw
+          - value: "hubble.relay.enabled=true"
+            value_type: raw
+          - value: "hubble.ui.enabled=true"
+            value_type: raw
         release_namespace: kube-system
     
