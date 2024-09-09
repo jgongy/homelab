@@ -1,0 +1,117 @@
+---
+- hosts: control1
+  become: yes
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Create InitConfiguration
+      blockinfile:
+        path: "/tmp/init-config.yml"
+        create: true
+        block: |
+          apiVersion: kubeadm.k8s.io/v1beta3
+          kind: InitConfiguration
+          nodeRegistration:
+            kubeletExtraArgs:
+              # address: "{{ ansible_default_ipv4.address }}"
+              node-ip: "{{ internal_ip }}"
+          skipPhases:
+            - "addon/kube-proxy"
+          ---
+          apiVersion: kubeadm.k8s.io/v1beta3
+          kind: ClusterConfiguration
+          networking:
+            podSubnet: "{{ pod_cidr }}"
+
+    - name: Initialize the Kubernetes cluster
+      command: "kubeadm init --config /tmp/init-config.yml"
+      args:
+        creates: /etc/kubernetes/admin.conf
+      register: kube_init
+
+    - name: Show kube_init info
+      debug:
+        var: kube_init
+
+    - name: Create .kube directory in user home
+      become: yes
+      become_user: "{{ kubernetes_user }}"
+      file:
+        path: $HOME/.kube
+        state: directory
+        mode: 0755
+
+    - name: Copy admin configuration to user .kube directory
+      copy:
+        remote_src: yes
+        src: /etc/kubernetes/admin.conf
+        dest: "/home/{{ kubernetes_user }}/.kube/config"
+        owner: "{{ kubernetes_user }}"
+        mode: 0600
+
+    - name: Get token
+      command: kubeadm token create
+      register: join_token
+
+    - name: Move token to local file in /tmp/
+      become: yes
+      local_action:
+        module: copy
+        content: "{{ join_token.stdout_lines[0] }}"
+        dest: /tmp/join_token
+
+    - name: Get CA certificate hash
+      community.crypto.x509_certificate_info:
+        path: /etc/kubernetes/pki/ca.crt
+      register: k_ca_crt
+
+    - name: Move CA certificate hash to local file in /tmp/
+      become: yes
+      local_action:
+        module: copy
+        content: 'sha256:{{ k_ca_crt["public_key_fingerprints"]["sha256"] | replace(":","") }}'
+        dest: /tmp/cert_hash
+
+    - name: API server endpoint to local file in /tmp/
+      become: yes
+      local_action:
+        module: copy
+        content: "{{ ansible_default_ipv4.address }}:6443"
+        dest: /tmp/api_server_endpoint
+
+    - name: Download Cilium CLI binary
+      get_url:
+        url: "https://github.com/cilium/cilium-cli/releases/download/{{ version }}/cilium-linux-{{ architecture }}.tar.gz"
+        dest: "/tmp/cilium-linux-{{ architecture }}.tar.gz"
+        checksum: "sha256:https://github.com/cilium/cilium-cli/releases/download/{{ version }}/cilium-linux-{{ architecture }}.tar.gz.sha256sum"
+      vars:
+        version: v0.16.15
+        architecture: amd64
+    
+    - name: Unpack Cilium CLI binary to /usr/local/bin
+      unarchive:
+        src: "/tmp/cilium-linux-{{ architecture }}.tar.gz"
+        dest: /usr/local/bin
+        remote_src: yes
+      vars:
+        architecture: amd64
+
+    - name: Download Hubble CLI binary
+      get_url:
+        url: "https://github.com/cilium/hubble/releases/download/{{ version }}/hubble-linux-{{ architecture }}.tar.gz"
+        dest: "/tmp/hubble-linux-{{ architecture }}.tar.gz"
+        checksum: "sha256:https://github.com/cilium/hubble/releases/download/{{ version }}/hubble-linux-{{ architecture }}.tar.gz.sha256sum"
+      vars:
+        version: v1.16.0
+        architecture: amd64
+
+    - name: Unpack Hubble CLI binary to /usr/local/bin
+      unarchive:
+        src: "/tmp/hubble-linux-{{ architecture }}.tar.gz"
+        dest: /usr/local/bin
+        remote_src: yes
+      vars:
+        architecture: amd64
+
