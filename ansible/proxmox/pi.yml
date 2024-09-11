@@ -1,0 +1,81 @@
+---
+###
+# Currently non-functional, needs more testing
+###
+- hosts: "rpis"
+  become: yes
+  gather_facts: yes
+
+  vars_files:
+      - vars.yml
+
+  tasks:
+    - name: Install packages
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+          - vim
+          - python3.11
+          - python3.11-venv
+          - curl
+          - gnupg-agent
+          - software-properties-common
+          - tmux
+          - sudo
+
+          # - name: Add Terraform apt repository
+          #   deb822_repository:
+          #     name: terraform
+          #     types: [deb]
+          #     architectures: [arm64]
+          #     uris: "https://apt.releases.hashicorp.com"
+          #     signed_by: "https://apt.releases.hashicorp.com/gpg"
+          #     suites: [bookworm]
+          #     components:
+          #       - main
+          #     state: present
+          #     enabled: yes
+
+          # - name: Install Terraform
+          #   apt:
+          #     name: "{{ packages }}"
+          #     state: present
+          #     update_cache: yes
+          #   vars:
+          #     packages:
+          #       - terraform
+
+    - name: Add Proxmox apt repository
+      deb822_repository:
+        name: proxmox
+        types: [deb]
+        architectures: [arm64]
+        uris: "https://mirrors.apqa.cn/proxmox/debian/pve"
+        signed_by: "https://mirrors.apqa.cn/proxmox/debian/pveport.gpg"
+        suites: [bookworm]
+        components:
+          - port
+        state: present
+        enabled: yes
+
+    - name: Install Proxmox
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+          - proxmox-ve
+
+    - name: Create Ansible virtual environment
+      pip:
+        name: "{{ packages }}"
+        virtualenv: "{{ venv_dir }}/ansible"
+        virtualenv_command: "python3.11 -m venv"
+      vars:
+        packages:
+          - ansible
+

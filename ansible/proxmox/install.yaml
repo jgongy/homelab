@@ -1,5 +1,5 @@
 ---
-- hosts: "nodes"
+- hosts: "laptops"
   become: yes
   gather_facts: yes
 
