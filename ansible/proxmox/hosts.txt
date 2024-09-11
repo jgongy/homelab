@@ -1,6 +1,6 @@
 [nodes]
-node1 ansible_host=10.20.0.2
+node1 ansible_host=10.0.10.0
 
 [laptops]
-laptop1 ansible_host=10.20.0.2
+laptop1 ansible_host=10.0.10.0
 

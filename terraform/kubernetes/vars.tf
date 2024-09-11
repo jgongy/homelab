@@ -3,7 +3,11 @@ variable "proxmox_node" {
 }
 
 variable "network_cidr" {
-  default = "172.20.0.0/16"
+  default = "172.0.11.0/24"
+}
+
+variable "gateway" {
+  default = "10.0.0.1"
 }
 
 variable "template" {
@@ -19,7 +23,7 @@ variable "image_url" {
 }
 
 variable "bridge" {
-  default = "vmbr200"
+  default = "vmbr008"
 }
 
 variable "user" {
