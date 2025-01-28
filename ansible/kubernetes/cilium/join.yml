@@ -26,6 +26,7 @@
             kubeletExtraArgs:
               # address: "{{ ansible_default_ipv4.address }}"
               node-ip: "{{ internal_ip }}"
+              node-labels: "{{ labels | items | map('join', '=') | join(',') }}"
           discovery:
             bootstrapToken:
               token: "{{ lookup('file', '/tmp/join_token') }}"
