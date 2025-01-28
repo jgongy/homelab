@@ -51,6 +51,7 @@
         name: kubernetes-dashboard
         kubeconfig: "{{ ansible_env.HOME }}/.kube/config"
         chart_ref: kubernetes-dashboard/kubernetes-dashboard
+        chart_version: 7.10.1
         release_namespace: "{{ monitoring_ns }}"
 
     - name: Create a Service Account for accessing the dashboard
