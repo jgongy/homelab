@@ -1,6 +1,6 @@
 ---
 - name: Create virtual environment
-  import_playbook: ../venv.yml
+  import_playbook: ../venv.yaml
 
 - name: Initialize the Kubernetes dashboard
-  import_playbook: dashboard.yml
+  import_playbook: dashboard.yaml

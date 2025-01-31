@@ -97,18 +97,18 @@
         update_cache: yes
       vars:
         packages:
-          - kubelet
           - kubeadm
           - kubectl
+          - kubelet
 
     - name: Hold Kubernetes binary version to prevent updates
       dpkg_selections:
         name: "{{ item }}"
         selection: hold
       loop:
-        - kubelet
         - kubeadm
         - kubectl
+        - kubelet
 
     - name: Restart kubelet
       service:

@@ -1,6 +1,0 @@
----
-- name: Create virtual environment
-  import_playbook: ../utilities/venv.yml
-
-- name: Initialize cert-manager
-  import_playbook: cert-manager.yml
