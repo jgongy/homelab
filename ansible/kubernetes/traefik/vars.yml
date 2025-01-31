@@ -1,0 +1,4 @@
+ns: "traefik"
+
+venv_dir: "/.venv"
+

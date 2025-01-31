@@ -1,0 +1,22 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: traefik-dashboard-basicauth-creds
+  namespace: traefik
+
+data:
+  # htpasswd -nb admin password | openssl base64
+  users: YWRtaW46JGFwcjEkZFlKc2Rha1ckVGthNy9aOFAzaEVEUTdIakVuNVhJLgoK
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-dashboard-basicauth
+  namespace: traefik
+
+spec:
+  basicAuth:
+    secret: traefik-dashboard-basicauth-creds
+

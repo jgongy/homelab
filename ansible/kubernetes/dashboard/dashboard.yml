@@ -31,9 +31,9 @@
         packages:
         - helm
 
-    - name: Create monitoring namespace
+    - name: Create namespace
       kubernetes.core.k8s:
-        name: "{{ monitoring_ns }}"
+        name: "{{ ns }}"
         api_version: v1
         kind: Namespace
         state: present
@@ -52,7 +52,7 @@
         kubeconfig: "{{ ansible_env.HOME }}/.kube/config"
         chart_ref: kubernetes-dashboard/kubernetes-dashboard
         chart_version: 7.10.1
-        release_namespace: "{{ monitoring_ns }}"
+        release_namespace: "{{ ns }}"
 
     - name: Create a Service Account for accessing the dashboard
       kubernetes.core.k8s:

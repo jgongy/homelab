@@ -44,14 +44,41 @@
         chart_ref: cilium/cilium
         chart_version: 1.16.1
         set_values:
+          # Setup Cilium assuming kube-proxy is disabled
           - value: "kubeProxyReplacement=true"
             value_type: raw
+
+          # Address and port for service named Kubernetes (i.e. the Kubernetes
+          # installation)
           - value: "k8sServiceHost={{ ansible_default_ipv4.address }}"
             value_type: string
           - value: "k8sServicePort=6443"
             value_type: raw
+
+          # CIDR pool from which Cilium should assign internal IPs
+          # NOTE: The CIDR pool should never overlap with an external network pool.
           - value: "ipam.operator.clusterPoolIPv4PodCIDRList={{ pod_cidr }}"
             value_type: raw
+
+          # Enable BGP for Cilium to perform L2 BGP for load balancing.
+          - value: "bgpControlPlane.enabled=true"
+            value_type: raw
+
+          # Enable L2 announcements for load balancing.
+          - value: "l2announcements.enabled=true"
+            value_type: raw
+          - value: "l2announcements.leaseDuration=3s"
+            value_type: raw
+          - value: "l2announcements.leaseRenewDeadline=1s"
+            value_type: raw
+          - value: "l2announcements.leaseRetryPeriod=200ms"
+            value_type: raw
+          - value: "k8sClientRateLimit.qps=33"
+            value_type: raw
+          - value: "k8sClientRateLimit.burst=20"
+            value_type: raw
+
+          # Activate Hubble tool.
           - value: "hubble.relay.enabled=true"
             value_type: raw
           - value: "hubble.ui.enabled=true"

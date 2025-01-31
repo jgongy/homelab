@@ -1,0 +1,6 @@
+---
+- name: Create virtual environment
+  import_playbook: venv.yml
+
+- name: Initialize Traefik Gateway
+  import_playbook: traefik.yml

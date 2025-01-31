@@ -1,0 +1,108 @@
+---
+- hosts: control_plane
+  remote_user: debian
+  gather_facts: yes
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Add Helm repository
+      become: yes
+      deb822_repository:
+        name: helm
+        types: [deb]
+        architectures: [amd64]
+        uris: "https://baltocdn.com/helm/stable/debian/"
+        signed_by: "https://baltocdn.com/helm/signing.asc"
+        suites: [all]
+        components:
+          - main
+        state: present
+        enabled: yes
+
+    - name: Install Helm
+      become: yes
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+        - helm
+
+    - name: Create namespace
+      kubernetes.core.k8s:
+        name: "{{ ns }}"
+        api_version: v1
+        kind: Namespace
+        state: present
+      vars:
+        ansible_python_interpreter: "{{ venv_dir }}/kubernetes/bin/python3.11"
+
+    - name: Add Traefik repository
+      kubernetes.core.helm_repository:
+        name: traefik
+        repo_url: "https://traefik.github.io/charts"
+
+    - name: Install Traefik
+      run_once: true
+      kubernetes.core.helm:
+        name: traefik
+        kubeconfig: "{{ ansible_env.HOME }}/.kube/config"
+        chart_ref: traefik/traefik
+        chart_version: 34.1.0
+        set_values:
+          # ref: https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml
+
+          # Enable Traefik Gateway API
+          - value: "providers.kubernetesGateway.enabled=true"
+            value_type: raw
+
+          # Automatically generate TLS certificates with cert-manager
+          - value: "gateway.annotations.'cert-manager\\.io/issuer'=selfsigned-issuer"
+            value_type: raw
+
+          # Remove Helm default listener
+          - value: "gateway.listeners.web=null"
+            value_type: raw
+
+          # Have Traefik Gateway listen for HTTP traffic directed to 8000
+          - value: "gateway.listeners.http.port=8000"
+            value_type: json
+          - value: "gateway.listeners.http.protocol=HTTP"
+            value_type: raw
+          - value: "gateway.listeners.http.namespacePolicy=All"
+            value_type: raw
+
+          # Have Traefik Gateway listen for HTTPS traffic directed to 8443
+          - value: "gateway.listeners.https.port=8443"
+            value_type: json
+          - value: "gateway.listeners.https.hostname=*.local"
+            value_type: raw
+          - value: "gateway.listeners.https.protocol=HTTPS"
+            value_type: raw
+          - value: "gateway.listeners.https.namespacePolicy=All"
+            value_type: raw
+          - value: "gateway.listeners.https.certificateRefs[0].name=https-selfsigned"
+            value_type: raw
+          - value: "gateway.listeners.https.mode=Terminate"
+            value_type: raw
+
+          # Have Traefik Gateway listen for traffic directed to 8080 for Traefik dashboard
+          - value: "ports.traefik.expose.default=true"
+            value_type: raw
+          - value: "additionalArguments={--api.insecure=true}"
+            value_type: raw
+          # - value: "additionalArguments={--traefik.http.routers.api.middlewares=traefik-dashboard-basicauth}"
+          #   value_type: raw
+
+          # Traefik logs
+          - value: "logs.general.format=json"
+            value_type: raw
+          - value: "logs.access.enabled=true"
+            value_type: raw
+          - value: "logs.access.format=json"
+            value_type: raw
+        release_namespace: "{{ ns }}"
+

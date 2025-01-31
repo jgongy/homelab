@@ -1,6 +1,5 @@
 ---
 - hosts: control1
-  become: yes
 
   vars_files:
     - vars.yml
@@ -26,14 +25,15 @@
             podSubnet: "{{ pod_cidr }}"
 
     - name: Initialize the Kubernetes cluster
+      become: yes
       command: "kubeadm init --config /tmp/init-config.yml"
       args:
         creates: /etc/kubernetes/admin.conf
       register: kube_init
 
-    - name: Show kube_init info
-      debug:
-        var: kube_init
+    # - name: Show kube_init info
+    #   debug:
+    #     var: kube_init
 
     - name: Create .kube directory in user home
       become: yes
@@ -44,12 +44,27 @@
         mode: 0755
 
     - name: Copy admin configuration to user .kube directory
+      become: yes
       copy:
         remote_src: yes
         src: /etc/kubernetes/admin.conf
         dest: "/home/{{ kubernetes_user }}/.kube/config"
         owner: "{{ kubernetes_user }}"
         mode: 0600
+
+    - name: Create .kube directory in local home
+      # become: yes
+      local_action:
+        module: file
+        path: $HOME/.kube
+        state: directory
+        mode: 0755
+
+    - name: Copy admin configuration to local .kube directory
+      fetch:
+        src: "/home/{{ kubernetes_user }}/.kube/config"
+        dest: ~/.kube/config
+        flat: yes
 
     - name: Get token
       command: kubeadm token create
@@ -91,6 +106,7 @@
         architecture: amd64
     
     - name: Unpack Cilium CLI binary to /usr/local/bin
+      become: yes
       unarchive:
         src: "/tmp/cilium-linux-{{ architecture }}.tar.gz"
         dest: /usr/local/bin
@@ -108,6 +124,7 @@
         architecture: amd64
 
     - name: Unpack Hubble CLI binary to /usr/local/bin
+      become: yes
       unarchive:
         src: "/tmp/hubble-linux-{{ architecture }}.tar.gz"
         dest: /usr/local/bin

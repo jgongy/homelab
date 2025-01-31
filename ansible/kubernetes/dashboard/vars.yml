@@ -1,4 +1,4 @@
-monitoring_ns: "monitoring"
+ns: "kubernetes-dashboard"
 
 venv_dir: "/.venv"
 

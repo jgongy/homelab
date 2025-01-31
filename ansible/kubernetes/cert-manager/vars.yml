@@ -1,0 +1,4 @@
+ns: "cert-manager"
+
+venv_dir: "/.venv"
+
