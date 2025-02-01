@@ -4,7 +4,7 @@
   gather_facts: yes
 
   vars_files:
-      - vars.yml
+    - vars.yaml
 
   tasks:
     - name: Install packages
@@ -22,7 +22,10 @@
           - software-properties-common
           - tmux
           - sudo
+          # TODO: Uncomment when it's figured out how to not install for Pi
+          # - libguestfs-tools # necessary for virt-customize
 
+    # TODO: Get these steps to not run on Pi devices
     - name: Add Terraform apt repository
       deb822_repository:
         name: terraform

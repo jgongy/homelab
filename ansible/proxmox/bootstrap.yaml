@@ -1,0 +1,13 @@
+---
+## Doesn't work for now because it is an interactive script
+# - name: Run post-install for Proxmox script
+#   import_playbook: post-install.yaml
+
+- name: Install required packages on each machine
+  import_playbook: install.yaml
+
+- name: Initialize common files
+  import_playbook: init.yaml
+
+- name: Run changes specifically for laptops
+  import_playbook: laptops.yaml

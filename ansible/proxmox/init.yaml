@@ -4,29 +4,28 @@
   gather_facts: yes
 
   vars_files:
-      - vars.yml
+      - vars.yaml
 
   tasks:
-    - name: Add authorized SSH keys
-      ansible.posix.authorized_key:
-        user: root 
-        state: present
-        key: "{{ lookup('file', item) }}"
-      loop:
-        - "{{ lookup('env', 'HOME') }}/.ssh/proxmox_id_ed25519.pub"
-        - "{{ lookup('env', 'HOME') }}/.ssh/k8_rsa.pub"
+    # - name: Add authorized SSH keys
+    #   ansible.posix.authorized_key:
+    #     user: root 
+    #     state: present
+    #     key: "{{ lookup('file', item) }}"
+    #   loop:
+    #     - "{{ lookup('env', 'HOME') }}/.ssh/proxmox_id_ed25519.pub"
+    #     - "{{ lookup('env', 'HOME') }}/.ssh/k8_rsa.pub"
+    #     - "{{ lookup('env', 'HOME') }}/.ssh/id_rsa.pub"
     
-    - name: Copy keys for VMs
+    - name: Copy authorized_keys onto the machine
       copy:
         src: "{{ lookup('env', 'HOME') }}/.ssh/{{ item.src }}"
         dest: "{{ ansible_env.HOME }}/.ssh/{{ item.dest }}"
         force: true
         mode: 0400
       loop:
-        - src: k8_rsa
-          dest: id_rsa
-        - src: k8_rsa.pub
-          dest: id_rsa.pub
+        - src: authorized_keys
+          dest: authorized_keys
 
     - name: Copy dotfiles
       copy:
