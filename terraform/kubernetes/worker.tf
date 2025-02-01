@@ -11,6 +11,7 @@ resource "proxmox_virtual_environment_vm" "worker" {
   stop_on_destroy = true
 
   initialization {
+    datastore_id = var.datastore
 
     ip_config {
       ipv4 {
