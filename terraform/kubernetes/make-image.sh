@@ -8,7 +8,7 @@
 
 IMAGE="debian-12-generic-amd64.qcow2"
 IMAGE_URL="https://cloud.debian.org/images/cloud/bookworm/latest/$IMAGE"
-SSH_KEY_PATH="/root/.ssh/id_rsa.pub"
+SSH_KEY_PATH="/root/.ssh/authorized_keys"
 VMID="5000"
 TPL_NAME="debian-12-cloudinit-template"
 
