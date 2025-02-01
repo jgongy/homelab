@@ -15,7 +15,7 @@ variable "template" {
 }
 
 variable "datastore" {
-  default = "local-lvm"
+  default = "local-zfs"
 }
 
 variable "image_url" {
