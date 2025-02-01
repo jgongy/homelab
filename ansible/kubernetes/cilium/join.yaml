@@ -4,7 +4,7 @@
   gather_facts: yes
 
   vars_files:
-    - vars.yml
+    - vars.yaml
 
   tasks:
     - name: Skip joining Worker node if already joined to the cluster

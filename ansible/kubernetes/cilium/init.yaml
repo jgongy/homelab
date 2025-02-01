@@ -2,7 +2,7 @@
 - hosts: control1
 
   vars_files:
-    - vars.yml
+    - vars.yaml
 
   tasks:
     - name: Create InitConfiguration
