@@ -8,7 +8,7 @@ terraform {
 }
 
 data "local_file" "ssh_public_key" {
-  filename = "/root/.ssh/id_rsa.pub"
+  filename = "/root/.ssh/authorized_keys"
 }
 
 provider "proxmox" {
