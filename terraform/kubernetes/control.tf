@@ -6,7 +6,7 @@ resource "proxmox_virtual_environment_vm" "control" {
   vm_id       = "20${count.index}"
 
   agent {
-    enabled = false
+    enabled = true
   }
   stop_on_destroy = true
 
@@ -49,7 +49,8 @@ resource "proxmox_virtual_environment_vm" "control" {
 
   disk {
     datastore_id = var.datastore
-    file_id      = proxmox_virtual_environment_download_file.cloud-init-iso.id
+    # file_id      = proxmox_virtual_environment_download_file.cloud-init-iso.id
+    file_id      = "local:iso/cloud.img"
     interface    = "virtio0"
     iothread     = true
     discard      = "on"

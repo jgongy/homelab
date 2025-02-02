@@ -3,7 +3,7 @@ variable "proxmox_node" {
 }
 
 variable "network_cidr" {
-  default = "172.0.11.0/24"
+  default = "172.0.11.0/22"
 }
 
 variable "gateway" {
