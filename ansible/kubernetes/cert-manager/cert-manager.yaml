@@ -59,3 +59,12 @@
             value_type: raw
         release_namespace: "{{ ns }}"
 
+    - name: Create self-signed issuer
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('template', 'self-signed.yaml') | from_yaml }}"
+        validate:
+          fail_on_error: yes
+      vars:
+        ansible_python_interpreter: "{{ venv_dir }}/kubernetes/bin/python3.11"
+

@@ -1,0 +1,7 @@
+---
+- name: Install Python venv
+  import_playbook: ../utilities/venv.yaml
+
+- name: Create Kubernetes LB resources
+  import_playbook: create-lb-resources.yaml
+

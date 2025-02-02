@@ -1,0 +1,26 @@
+---
+- hosts: control_plane
+  remote_user: debian
+  gather_facts: yes
+
+  vars_files:
+    - vars.yaml
+
+  tasks:
+    - name: Create Cilium L2 announcement policy
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('template', 'announcement-policy.yaml') | from_yaml }}"
+        validate:
+          fail_on_error: yes
+      vars:
+        ansible_python_interpreter: "{{ venv_dir }}/kubernetes/bin/python3.11"
+
+    - name: Create IP pool
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('template', 'ip-pool.yaml') | from_yaml }}"
+        validate:
+          fail_on_error: yes
+      vars:
+        ansible_python_interpreter: "{{ venv_dir }}/kubernetes/bin/python3.11"

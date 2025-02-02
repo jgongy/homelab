@@ -1,0 +1,16 @@
+---
+- name: Bootstrap Kubernetes cluster and initialize cilium
+  import_playbook: cilium/bootstrap.yaml
+
+- name: Create load balancing resources
+  import_playbook: load-balancing/bootstrap.yaml
+
+- name: Deploy cert manager
+  import_playbook: cert-manager/start-cm.yaml
+
+- name: Deploy Traefik Gateway API
+  import_playbook: traefik/start-traefik.yaml
+
+- name: Deploy kubernetes-dashboard
+  import_playbook: dashboard/create-dashboard.yaml
+
