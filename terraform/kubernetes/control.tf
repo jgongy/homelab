@@ -40,6 +40,10 @@ resource "proxmox_virtual_environment_vm" "control" {
     dedicated = 2048
   }
 
+  serial_device {
+    device = "socket"
+  }
+
   # scsihw      = "virtio-scsi-pci"
   # bootdisk    = "scsi0"
 
