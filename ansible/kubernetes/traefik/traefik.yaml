@@ -60,7 +60,7 @@
             value_type: raw
 
           # Automatically generate TLS certificates with cert-manager
-          - value: "gateway.annotations.'cert-manager\\.io/issuer'=selfsigned-issuer"
+          - value: "gateway.annotations.'cert-manager\\.io/cluster-issuer'=selfsigned-cluster-issuer"
             value_type: raw
 
           # Remove Helm default listener
@@ -84,7 +84,7 @@
             value_type: raw
           - value: "gateway.listeners.https.namespacePolicy=All"
             value_type: raw
-          - value: "gateway.listeners.https.certificateRefs[0].name=https-selfsigned"
+          - value: "gateway.listeners.https.certificateRefs[0].name=https-selfsigned-cluster-issuer"
             value_type: raw
           - value: "gateway.listeners.https.mode=Terminate"
             value_type: raw

@@ -62,7 +62,7 @@
     - name: Create self-signed issuer
       kubernetes.core.k8s:
         state: present
-        definition: "{{ lookup('template', 'self-signed.yaml') | from_yaml }}"
+        definition: "{{ lookup('template', 'selfsigned-cluster-issuer.yaml') | from_yaml }}"
         validate:
           fail_on_error: yes
       vars:
