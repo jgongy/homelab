@@ -56,3 +56,24 @@
         packages:
           - ansible
 
+    - name: Add Tailscale apt repository
+      deb822_repository:
+        name: tailscale
+        types: [deb]
+        uris: "https://pkgs.tailscale.com/stable/debian"
+        signed_by: "https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg"
+        suites: [bookworm]
+        components:
+          - main
+        state: present
+        enabled: yes
+
+    - name: Install Tailscale
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+          - tailscale
+
