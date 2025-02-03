@@ -9,5 +9,8 @@
 - name: Initialize common files
   import_playbook: init.yaml
 
+- name: Run changes specifically for AMD64 architecture machines
+  import_playbook: amd64-install.yaml
+
 - name: Run changes specifically for laptops
   import_playbook: laptops.yaml

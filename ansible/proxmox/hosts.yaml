@@ -1,17 +1,19 @@
 nodes:
-  hosts:
-    node1:
-      ansible_host: 10.0.10.0
-    node2:
-      ansible_host: 10.0.10.10
+  children:
+    laptops:
+    rpis:
 
 laptops:
   hosts:
     laptop1:
       ansible_host: 10.0.10.0
 
-pis:
+rpis:
   hosts:
-    pi4:
+    rpi4:
       ansible_host: 10.0.10.10
+
+amd64:
+  children:
+    laptops:
 

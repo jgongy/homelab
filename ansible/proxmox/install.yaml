@@ -1,5 +1,5 @@
 ---
-- hosts: "laptops"
+- hosts: "nodes"
   become: yes
   gather_facts: yes
 
@@ -22,39 +22,9 @@
           - software-properties-common
           - tmux
           - sudo
+          - corosync-qdevice
           # TODO: Uncomment when it's figured out how to not install for Pi
           # - libguestfs-tools # necessary for virt-customize
-
-    # TODO: Get these steps to not run on Pi devices
-    - name: Add Terraform apt repository
-      deb822_repository:
-        name: terraform
-        types: [deb]
-        uris: "https://apt.releases.hashicorp.com"
-        signed_by: "https://apt.releases.hashicorp.com/gpg"
-        suites: [bookworm]
-        components:
-          - main
-        state: present
-        enabled: yes
-
-    - name: Install Terraform
-      apt:
-        name: "{{ packages }}"
-        state: present
-        update_cache: yes
-      vars:
-        packages:
-          - terraform
-
-    - name: Create Ansible virtual environment
-      pip:
-        name: "{{ packages }}"
-        virtualenv: "{{ venv_dir }}/ansible"
-        virtualenv_command: "python3.11 -m venv"
-      vars:
-        packages:
-          - ansible
 
     - name: Add Tailscale apt repository
       deb822_repository:
@@ -68,7 +38,7 @@
         state: present
         enabled: yes
 
-    - name: Install Tailscale
+    - name: Install Tailscale and networkd-dispatcher
       apt:
         name: "{{ packages }}"
         state: present
@@ -76,4 +46,5 @@
       vars:
         packages:
           - tailscale
+          - networkd-dispatcher
 
