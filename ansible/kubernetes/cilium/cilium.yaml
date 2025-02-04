@@ -86,7 +86,7 @@
 
           # Address and port for service named Kubernetes (i.e. the Kubernetes
           # installation)
-          - value: "k8sServiceHost={{ ansible_default_ipv4.address }}"
+          - value: "k8sServiceHost={{ internal_ip }}"
             value_type: string
           - value: "k8sServicePort=6443"
             value_type: raw

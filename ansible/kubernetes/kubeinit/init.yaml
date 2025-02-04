@@ -116,13 +116,6 @@
         content: 'sha256:{{ k_ca_crt["public_key_fingerprints"]["sha256"] | replace(":","") }}'
         dest: /tmp/cert_hash
 
-    # - name: API server endpoint to local file in /tmp/
-    #   become: yes
-    #   local_action:
-    #     module: copy
-    #     content: "{{ ansible_default_ipv4.address }}:6443"
-    #     dest: /tmp/api_server_endpoint
-
   handlers:
     - name: Revert Kube VIP Issue 684 workaround
       become: yes

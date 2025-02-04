@@ -18,10 +18,6 @@ variable "datastore" {
   default = "local-zfs"
 }
 
-variable "image_url" {
-  default = "https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-generic-amd64.qcow2"
-}
-
 variable "bridge" {
   default = "vmbr008"
 }
