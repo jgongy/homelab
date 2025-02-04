@@ -1,0 +1,49 @@
+---
+- hosts: tailscale
+  gather_facts: yes
+
+  vars_files:
+    - vars.yaml
+
+  tasks:
+    - name: Add Tailscale package repository
+      become: yes
+      deb822_repository:
+        name: tailscale
+        types: [deb]
+        architectures: [amd64]
+        uris: "https://pkgs.tailscale.com/stable/debian"
+        signed_by: "https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg"
+        suites: [bookworm]
+        components:
+          - main
+        state: present
+        enabled: yes
+
+    - name: Install Tailscale
+      become: yes
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+          - tailscale
+
+    - name: Run Tailscale
+      become: yes
+      command:
+        argv:
+          - "tailscale"
+          - "up"
+          - "--auth-key={{ auth_key }}"
+          - "--advertise-routes=10.0.0.0/20"
+          - "--advertise-exit-node"
+
+    - name: Open firewall for exit nodes
+      become: yes
+      shell: |
+        echo 'net.ipv4.ip_forward = 1' | tee -a /etc/sysctl.d/99-tailscale.conf
+        echo 'net.ipv6.conf.all.forwarding = 1' | tee -a /etc/sysctl.d/99-tailscale.conf
+        sysctl -p /etc/sysctl.d/99-tailscale.conf
+
