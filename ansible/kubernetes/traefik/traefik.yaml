@@ -32,6 +32,7 @@
         - helm
 
     - name: Create namespace
+      run_once: true
       kubernetes.core.k8s:
         name: "{{ ns }}"
         api_version: v1
@@ -45,7 +46,7 @@
         name: traefik
         repo_url: "https://traefik.github.io/charts"
 
-    - name: Install Traefik
+    - name: Deploy Traefik
       run_once: true
       kubernetes.core.helm:
         name: traefik

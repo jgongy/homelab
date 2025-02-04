@@ -31,12 +31,48 @@
         packages:
           - helm
 
+    - name: Download Cilium CLI binary
+      get_url:
+        url: "https://github.com/cilium/cilium-cli/releases/download/{{ version }}/cilium-linux-{{ architecture }}.tar.gz"
+        dest: "/tmp/cilium-linux-{{ architecture }}.tar.gz"
+        checksum: "sha256:https://github.com/cilium/cilium-cli/releases/download/{{ version }}/cilium-linux-{{ architecture }}.tar.gz.sha256sum"
+      vars:
+        version: v0.16.15
+        architecture: amd64
+    
+    - name: Unpack Cilium CLI binary to /usr/local/bin
+      become: yes
+      unarchive:
+        src: "/tmp/cilium-linux-{{ architecture }}.tar.gz"
+        dest: /usr/local/bin
+        remote_src: yes
+      vars:
+        architecture: amd64
+
+    - name: Download Hubble CLI binary
+      get_url:
+        url: "https://github.com/cilium/hubble/releases/download/{{ version }}/hubble-linux-{{ architecture }}.tar.gz"
+        dest: "/tmp/hubble-linux-{{ architecture }}.tar.gz"
+        checksum: "sha256:https://github.com/cilium/hubble/releases/download/{{ version }}/hubble-linux-{{ architecture }}.tar.gz.sha256sum"
+      vars:
+        version: v1.16.0
+        architecture: amd64
+
+    - name: Unpack Hubble CLI binary to /usr/local/bin
+      become: yes
+      unarchive:
+        src: "/tmp/hubble-linux-{{ architecture }}.tar.gz"
+        dest: /usr/local/bin
+        remote_src: yes
+      vars:
+        architecture: amd64
+
     - name: Add Cilium Helm repository
       kubernetes.core.helm_repository:
         name: cilium
         repo_url: "https://helm.cilium.io/"
 
-    - name: Install Cilium
+    - name: Deploy Cilium
       run_once: true
       kubernetes.core.helm:
         name: cilium

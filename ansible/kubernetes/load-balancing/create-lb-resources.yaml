@@ -8,6 +8,7 @@
 
   tasks:
     - name: Create Cilium L2 announcement policy
+      run_once: true
       kubernetes.core.k8s:
         state: present
         definition: "{{ lookup('template', 'announcement-policy.yaml') | from_yaml }}"
@@ -17,6 +18,7 @@
         ansible_python_interpreter: "{{ venv_dir }}/kubernetes/bin/python3.11"
 
     - name: Create IP pool
+      run_once: true
       kubernetes.core.k8s:
         state: present
         definition: "{{ lookup('template', 'ip-pool.yaml') | from_yaml }}"

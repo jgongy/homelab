@@ -1,5 +1,5 @@
 resource "proxmox_virtual_environment_vm" "control" {
-  count       = 1
+  count       = 2
   node_name   = var.proxmox_node
 
   name        = "k-control-${count.index}"

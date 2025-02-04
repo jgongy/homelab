@@ -1,11 +1,11 @@
 ---
 - hosts: "control_plane,worker_nodes"
   remote_user: debian
-  become: yes
   gather_facts: yes
 
   tasks:
     - name: Install packages for using apt over HTTPS
+      become: yes
       apt:
         name: "{{ packages }}"
         state: present
@@ -21,11 +21,13 @@
         - jq
 
     - name: Create containerd module configuration file
+      become: yes
       file:
         path: "/etc/modules-load.d/containerd.conf"
         state: "touch"
 
     - name: Add configuration to enable modules for containerd
+      become: yes
       blockinfile:
         path: "/etc/modules-load.d/containerd.conf"
         block: |
@@ -33,16 +35,19 @@
             overlay
 
     - name: Enable modules for containerd
+      become: yes
       shell: |
         modprobe br_netfilter
         modprobe overlay
 
     - name: Create Kubernetes networking configuration file
+      become: yes
       file:
         path: "/etc/sysctl.d/99-kubernetes-cri.conf"
         state: "touch"
 
     - name: Add Kubernetes networking configurations
+      become: yes
       blockinfile:
         path: "/etc/sysctl.d/99-kubernetes-cri.conf"
         block: |
@@ -51,9 +56,11 @@
           net.ipv4.ip_forward = 1
 
     - name: Reload system configuration
+      become: yes
       command: sysctl --system
 
     - name: Install containerd
+      become: yes
       apt:
         name: "{{ packages }}"
         state: present
@@ -63,6 +70,7 @@
         - containerd
 
     - name: Create containerd config
+      become: yes
       shell: |
         mkdir -p /etc/containerd
         containerd config default > /etc/containerd/config.toml
@@ -70,27 +78,31 @@
         sed -i 's/sandbox_image = "registry.k8s.io\/pause:[0-9]*\.[0-9]*"/sandbox_image = "registry.k8s.io\/pause:3.10"/g' /etc/containerd/config.toml
     
     - name: Restart containerd
+      become: yes
       service:
         name: containerd
         state: restarted
 
     - name: Disable swap
+      become: yes
       shell: |
         swapoff -a
         sed -i '/ swap / s/^\(.*\)$/# \1/g' /etc/fstab
       when: ansible_swaptotal_mb >= 0
 
     - name: Adding Kubernetes repository
+      become: yes
       deb822_repository:
         name: kubernetes
         types: [deb]
-        uris: "https://pkgs.k8s.io/core:/stable:/v1.31/deb/"
-        signed_by: "https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key"
+        uris: "https://pkgs.k8s.io/core:/stable:/v1.32/deb/"
+        signed_by: "https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key"
         suites: [/]
         state: present
         enabled: yes
 
     - name: Install Kubernetes binaries
+      become: yes
       apt:
         name: "{{ packages }}"
         state: present
@@ -102,6 +114,7 @@
           - kubelet
 
     - name: Hold Kubernetes binary version to prevent updates
+      become: yes
       dpkg_selections:
         name: "{{ item }}"
         selection: hold
@@ -111,6 +124,7 @@
         - kubelet
 
     - name: Restart kubelet
+      become: yes
       service:
         name: kubelet
         daemon_reload: yes

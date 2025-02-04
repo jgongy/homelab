@@ -1,0 +1,21 @@
+---
+- hosts: control1
+  gather_facts: yes
+
+  vars_files:
+    - vars.yaml
+
+  tasks:
+    - name: Generate the kube-vip manifest using containerd
+      become: yes
+      shell: |
+        ctr image pull ghcr.io/kube-vip/kube-vip:"{{ kv_version }}"
+        ctr run --rm --net-host ghcr.io/kube-vip/kube-vip:"{{ kv_version }}" vip /kube-vip manifest pod --interface "{{ kv_interface }}" --address "{{ kv_ip }}" --controlplane --services --arp --leaderElection > /etc/kubernetes/manifests/kube-vip.yaml
+
+    - name: Copy kube-vip.yaml configuration to local file in /tmp/ 
+      become: yes
+      fetch:
+        src: "/etc/kubernetes/manifests/kube-vip.yaml"
+        dest: "/tmp/kube-vip.yaml"
+        flat: yes
+

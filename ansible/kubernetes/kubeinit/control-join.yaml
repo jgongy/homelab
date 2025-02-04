@@ -1,0 +1,68 @@
+---
+- hosts: additional_control_plane_nodes
+  become: yes
+  gather_facts: yes
+
+  vars_files:
+    - vars.yaml
+
+  tasks:
+    - name: Skip joining control node if already joined to the cluster
+      stat:
+        path: /etc/kubernetes/kubelet.conf
+      register: stat_result
+
+    - meta: end_play
+      when: stat_result.stat.exists
+
+    - name: Create JoinConfiguration
+      blockinfile:
+        path: "/tmp/control-join-config.yaml"
+        create: true
+        block: |
+          apiVersion: kubeadm.k8s.io/v1beta4
+          kind: JoinConfiguration
+          nodeRegistration:
+            kubeletExtraArgs:
+              - name: node-ip
+                value: "{{ internal_ip }}"
+              - name: node-labels
+                value: "{{ labels | items | map('join', '=') | join(',') }}"
+          discovery:
+            bootstrapToken:
+              apiServerEndpoint: "{{ kv_ip }}:{{ kv_port }}"
+              caCertHashes:
+                - "{{ lookup('file', '/tmp/cert_hash') }}"
+              token: "{{ lookup('file', '/tmp/join_token') }}"
+          controlPlane:
+            localAPIEndpoint:
+              advertiseAddress: "{{ internal_ip }}"
+              # bindPort: 6443
+            certificateKey: "{{ lookup('file', '/tmp/cert_key') }}"
+
+    - name: Join the control plane nodes to the cluster.
+      command: "kubeadm join --config /tmp/control-join-config.yaml"
+
+    - name: Create .kube directory in user home
+      become: yes
+      become_user: "{{ kubernetes_user }}"
+      file:
+        path: $HOME/.kube
+        state: directory
+        mode: 0755
+
+    - name: Copy admin configuration to user .kube directory
+      become: yes
+      copy:
+        remote_src: yes
+        src: /etc/kubernetes/admin.conf
+        dest: "/home/{{ kubernetes_user }}/.kube/config"
+        owner: "{{ kubernetes_user }}"
+        mode: 0600
+
+    - name: Add the kube-vip manifest to the new control plane
+      become: yes
+      copy:
+        src: "/tmp/kube-vip.yaml"
+        dest: "/etc/kubernetes/manifests/kube-vip.yaml"
+

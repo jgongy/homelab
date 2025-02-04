@@ -1,0 +1,15 @@
+# venv_dir: "/.venv"
+
+# For Cilium Pod networking
+pod_cidr: "172.16.0.0/14"
+kubernetes_user: "debian"
+
+# For joining control and worker nodes
+join_location: "/tmp/join_command.out"
+
+# kube-vip
+kv_version: "v0.8.9"
+kv_interface: "eth1"
+kv_ip: "172.0.11.8"
+kv_port: "6443"
+

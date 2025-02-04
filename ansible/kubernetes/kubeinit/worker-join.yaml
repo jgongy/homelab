@@ -17,14 +17,13 @@
 
     - name: Create JoinConfiguration
       blockinfile:
-        path: "/tmp/join-config.yaml"
+        path: "/tmp/worker-join-config.yaml"
         create: true
         block: |
           apiVersion: kubeadm.k8s.io/v1beta3
           kind: JoinConfiguration
           nodeRegistration:
             kubeletExtraArgs:
-              # address: "{{ ansible_default_ipv4.address }}"
               node-ip: "{{ internal_ip }}"
               node-labels: "{{ labels | items | map('join', '=') | join(',') }}"
           discovery:
@@ -32,8 +31,8 @@
               token: "{{ lookup('file', '/tmp/join_token') }}"
               caCertHashes:
                 - "{{ lookup('file', '/tmp/cert_hash') }}"
-              apiServerEndpoint: "{{ lookup('file', '/tmp/api_server_endpoint') }}"
+              apiServerEndpoint: "{{ kv_ip }}:{{ kv_port }}"
 
     - name: Join the Worker nodes to the cluster.
-      command: "kubeadm join --config /tmp/join-config.yaml"
+      command: "kubeadm join --config /tmp/worker-join-config.yaml"
 

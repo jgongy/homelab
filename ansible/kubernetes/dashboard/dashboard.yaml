@@ -32,6 +32,7 @@
         - helm
 
     - name: Create namespace
+      run_once: true
       kubernetes.core.k8s:
         name: "{{ ns }}"
         api_version: v1
@@ -45,7 +46,7 @@
         name: kubernetes-dashboard
         repo_url: "https://kubernetes.github.io/dashboard/"
 
-    - name: Install Kubernetes Dashboard
+    - name: Deploy Kubernetes Dashboard
       run_once: true
       kubernetes.core.helm:
         name: kubernetes-dashboard
@@ -55,6 +56,7 @@
         release_namespace: "{{ ns }}"
 
     - name: Create a Service Account for accessing the dashboard
+      run_once: true
       kubernetes.core.k8s:
         state: present
         definition: "{{ lookup('template', 'service-account.j2') | from_yaml }}"
@@ -64,6 +66,7 @@
         ansible_python_interpreter: "{{ venv_dir }}/kubernetes/bin/python3.11"
 
     - name: Create a Cluster Role Binding for the Service Account
+      run_once: true
       kubernetes.core.k8s:
         state: present
         definition: "{{ lookup('template', 'crb.j2') | from_yaml }}"
@@ -73,6 +76,7 @@
         ansible_python_interpreter: "{{ venv_dir }}/kubernetes/bin/python3.11"
 
     - name: Create a long-lived API token for the Service Account
+      run_once: true
       kubernetes.core.k8s:
         state: present
         definition: "{{ lookup('template', 'secret.j2') | from_yaml }}"

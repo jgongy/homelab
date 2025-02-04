@@ -1,0 +1,133 @@
+---
+- hosts: control1
+
+  vars_files:
+    - vars.yaml
+
+  tasks:
+    - name: Generate CA certificate key
+      become: yes
+      command: kubeadm certs certificate-key
+      register: k_ca_key
+
+    - name: Move CA certificate key to local file in /tmp/
+      become: yes
+      local_action:
+        module: copy
+        content: "{{ k_ca_key.stdout_lines[0] }}"
+        dest: /tmp/cert_key
+
+    - name: Create InitConfiguration
+      blockinfile:
+        path: "/tmp/init-config.yaml"
+        create: true
+        block: |
+          apiVersion: kubeadm.k8s.io/v1beta4
+          kind: InitConfiguration
+          nodeRegistration:
+            kubeletExtraArgs:
+              - name: "node-ip"
+                value: "{{ internal_ip }}"
+          certificateKey: "{{ k_ca_key.stdout_lines[0] }}"
+          localAPIEndpoint:
+            advertiseAddress: "{{ internal_ip }}"
+            # bindPort: "6443"
+          skipPhases:
+            - "addon/kube-proxy"
+          ---
+          apiVersion: kubeadm.k8s.io/v1beta3
+          kind: ClusterConfiguration
+          controlPlaneEndpoint: "{{ kv_ip }}:{{ kv_port }}"
+          networking:
+            podSubnet: "{{ pod_cidr }}"
+
+    - name: Kube VIP Issue 684 workaround
+      # ref: https://github.com/kube-vip/kube-vip/issues/907
+      become: yes
+      lineinfile:
+        regexp: "path: /etc/kubernetes/admin.conf"
+        line: "      path: /etc/kubernetes/super-admin.conf" # Spaces are required for indentation
+        path: /etc/kubernetes/manifests/kube-vip.yaml
+      # when: kube_vip_issue_684_workaround | default(false)
+      notify: Revert Kube VIP Issue 684 workaround
+
+    - name: Initialize the Kubernetes cluster
+      become: yes
+      command: "kubeadm init --config /tmp/init-config.yaml --upload-certs"
+      args:
+        creates: /etc/kubernetes/admin.conf
+      register: kube_init
+
+    # - name: Show kube_init info
+    #   debug:
+    #     var: kube_init
+
+    - name: Create .kube directory in user home
+      become: yes
+      become_user: "{{ kubernetes_user }}"
+      file:
+        path: $HOME/.kube
+        state: directory
+        mode: 0755
+
+    - name: Copy admin configuration to user .kube directory
+      become: yes
+      copy:
+        remote_src: yes
+        src: /etc/kubernetes/admin.conf
+        dest: "/home/{{ kubernetes_user }}/.kube/config"
+        owner: "{{ kubernetes_user }}"
+        mode: 0600
+
+    # - name: Create .kube directory in local home
+    #   # become: yes
+    #   local_action:
+    #     module: file
+    #     path: $HOME/.kube
+    #     state: directory
+    #     mode: 0755
+
+    # - name: Copy admin configuration to local .kube directory
+    #   fetch:
+    #     src: "/home/{{ kubernetes_user }}/.kube/config"
+    #     dest: ~/.kube/config
+    #     flat: yes
+
+    - name: Get token
+      command: kubeadm token create
+      register: join_token
+
+    - name: Move token to local file in /tmp/
+      become: yes
+      local_action:
+        module: copy
+        content: "{{ join_token.stdout_lines[0] }}"
+        dest: /tmp/join_token
+
+    - name: Get CA certificate hash
+      community.crypto.x509_certificate_info:
+        path: /etc/kubernetes/pki/ca.crt
+      register: k_ca_crt
+
+    - name: Move CA certificate hash to local file in /tmp/
+      become: yes
+      local_action:
+        module: copy
+        content: 'sha256:{{ k_ca_crt["public_key_fingerprints"]["sha256"] | replace(":","") }}'
+        dest: /tmp/cert_hash
+
+    # - name: API server endpoint to local file in /tmp/
+    #   become: yes
+    #   local_action:
+    #     module: copy
+    #     content: "{{ ansible_default_ipv4.address }}:6443"
+    #     dest: /tmp/api_server_endpoint
+
+  handlers:
+    - name: Revert Kube VIP Issue 684 workaround
+      become: yes
+      lineinfile:
+        regexp: "path: /etc/kubernetes/super-admin.conf"
+        line: "      path: /etc/kubernetes/admin.conf" # Spaces are required for indentation
+        path: /etc/kubernetes/manifests/kube-vip.yaml
+

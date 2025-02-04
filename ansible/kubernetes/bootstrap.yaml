@@ -1,5 +1,8 @@
 ---
-- name: Bootstrap Kubernetes cluster and initialize cilium
+- name: Bootstrap Kubernetes cluster
+  import_playbook: kubeinit/bootstrap.yaml
+
+- name: Initialize Cilium
   import_playbook: cilium/bootstrap.yaml
 
 - name: Create load balancing resources

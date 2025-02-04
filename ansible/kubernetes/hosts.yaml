@@ -1,8 +1,19 @@
 control_plane:
+  children:
+    initial_control_plane_node:
+    additional_control_plane_nodes:
+
+initial_control_plane_node:
   hosts:
     control1:
       ansible_host: 10.0.11.0
       internal_ip: 172.0.11.0
+
+additional_control_plane_nodes:
+  hosts:
+    control2:
+      ansible_host: 10.0.11.1
+      internal_ip: 172.0.11.1
 
 worker_nodes:
   hosts:

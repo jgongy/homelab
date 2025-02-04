@@ -1,0 +1,16 @@
+---
+- name: Install required packages on each machine
+  import_playbook: install.yaml
+
+- name: Initialize kube-vip for control plane endpoint
+  import_playbook: kube-vip.yaml
+
+- name: Initialize Kubernetes on the control plane
+  import_playbook: init.yaml
+
+- name: Join additional control plane nodes to the cluster
+  import_playbook: control-join.yaml
+
+- name: Join worker nodes to the cluster
+  import_playbook: worker-join.yaml
+
