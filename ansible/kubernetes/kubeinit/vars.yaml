@@ -10,6 +10,6 @@ join_location: "/tmp/join_command.out"
 # kube-vip
 kv_version: "v0.8.9"
 kv_interface: "eth1"
-kv_ip: "172.0.11.8"
+kv_ip: "172.0.15.8"
 kv_port: "6443"
 

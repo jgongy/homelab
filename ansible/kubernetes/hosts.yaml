@@ -6,33 +6,33 @@ control_plane:
 initial_control_plane_node:
   hosts:
     control1:
-      ansible_host: 10.0.11.0
-      internal_ip: 172.0.11.0
+      ansible_host: 10.0.15.0
+      internal_ip: 172.0.15.0
 
 additional_control_plane_nodes:
   hosts:
     control2:
-      ansible_host: 10.0.11.1
-      internal_ip: 172.0.11.1
+      ansible_host: 10.0.15.1
+      internal_ip: 172.0.15.1
 
 worker_nodes:
   hosts:
     worker1:
-      ansible_host: 10.0.11.10
-      internal_ip: 172.0.11.10
+      ansible_host: 10.0.15.10
+      internal_ip: 172.0.15.10
       labels:
         type: "worker"
         bgp-policy: "all"
     worker2:
-      ansible_host: 10.0.11.11
-      internal_ip: 172.0.11.11
+      ansible_host: 10.0.15.11
+      internal_ip: 172.0.15.11
       labels:
         type: "worker"
         bgp-policy: "all"
-    storage1:
-      ansible_host: 10.0.11.7
-      internal_ip: 172.0.11.7
-      labels:
-        type: "storage"
-        bgp-policy: "all"
+    # storage1:
+    #   ansible_host: 10.0.15.7
+    #   internal_ip: 172.0.15.7
+    #   labels:
+    #     type: "storage"
+    #     bgp-policy: "all"
 

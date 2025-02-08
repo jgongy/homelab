@@ -15,13 +15,13 @@ resource "proxmox_virtual_environment_vm" "storage" {
 
     ip_config {
       ipv4 {
-        address = "10.0.11.${count.index + 7}/20"
+        address = "10.0.15.${count.index + 7}/20"
         gateway = var.gateway
       }
     }
     ip_config {
       ipv4 {
-        address = "172.0.11.${count.index + 7}/22"
+        address = "172.0.15.${count.index + 7}/22"
       }
     }
 
