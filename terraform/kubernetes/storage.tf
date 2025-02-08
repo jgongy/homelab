@@ -1,5 +1,5 @@
 resource "proxmox_virtual_environment_vm" "storage" {
-  count       = 1
+  count       = 0
   node_name   = var.proxmox_node
 
   name        = "k-storage-${count.index}"
