@@ -1,0 +1,9 @@
+---
+- name: Create virtual environment
+  import_playbook: ../utilities/venv.yaml
+
+- name: Install Helm
+  import_playbook: ../utilities/helm.yaml
+
+- name: Initialize Plex Media Server
+  import_playbook: plex.yaml

@@ -1,0 +1,6 @@
+deployment_name: "plex"
+
+ns: "plex"
+
+venv_dir: "/.venv"
+

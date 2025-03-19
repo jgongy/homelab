@@ -1,0 +1,41 @@
+# HTTP Route
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: plex-http
+  namespace: {{ ns }}
+spec:
+  parentRefs:
+  - name: traefik-gateway
+    namespace: traefik
+    sectionName: http
+  hostnames:
+  - plex.local
+  rules:
+    - filters:
+      - type: RequestRedirect
+        requestRedirect:
+          scheme: https
+
+# HTTPS Route
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: plex-https
+  namespace: {{ ns }}
+spec:
+  parentRefs:
+  - name: traefik-gateway
+    namespace: traefik
+    sectionName: https
+  hostnames:
+  - plex.local
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: {{ deployment_name }}
+      namespace: {{ ns }}
+      port: 32400

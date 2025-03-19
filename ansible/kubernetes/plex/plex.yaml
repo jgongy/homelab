@@ -1,0 +1,50 @@
+---
+- hosts: control_plane
+  remote_user: debian
+  gather_facts: yes
+
+  vars_files:
+    - vars.yaml
+
+  tasks:
+    - name: Create namespace
+      run_once: true
+      kubernetes.core.k8s:
+        name: "{{ ns }}"
+        api_version: v1
+        kind: Namespace
+        state: present
+      vars:
+        ansible_python_interpreter: "{{ venv_dir }}/kubernetes/bin/python3.11"
+
+    - name: Add Plex repository
+      kubernetes.core.helm_repository:
+        name: plex
+        repo_url: "https://raw.githubusercontent.com/plexinc/pms-docker/gh-pages"
+
+    - name: Create HTTP Routes to Plex Media Server
+      run_once: true
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('template', 'route.yaml') | from_yaml }}"
+        validate:
+          fail_on_error: yes
+      vars:
+        ansible_python_interpreter: "{{ venv_dir }}/kubernetes/bin/python3.11"
+
+    - name: Create new Plex Media Server
+      run_once: true
+      kubernetes.core.helm:
+        name: "{{ deployment_name }}"
+        kubeconfig: "{{ ansible_env.HOME }}/.kube/config"
+        chart_ref: plex/plex-media-server
+        chart_version: 0.8.0
+        set_values:
+          - value: "fullnameOverride=plex"
+            value_type: raw
+          - value: "pms.configStorage=10Gi"
+            value_type: raw
+          - value: "extraEnv.PLEX_CLAIM=claim"
+            value_type: raw
+        release_namespace: "{{ ns }}"
+
