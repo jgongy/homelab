@@ -22,11 +22,3 @@ provider "proxmox" {
   }
 }
 
-# resource "proxmox_virtual_environment_download_file" "cloud-init-iso" {
-#   content_type = "iso"
-#   datastore_id = "local"
-#   node_name    = var.proxmox_node
-#
-#   url = var.image_url
-#   file_name    = "cloud-init.img"
-# }

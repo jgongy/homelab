@@ -18,10 +18,14 @@ variable "datastore" {
   default = "local-zfs"
 }
 
-variable "bridge" {
+variable "kubernetes_bridge" {
   default = "vmbr008"
 }
 
 variable "user" {
   default = "debian"
+}
+
+variable "cloud_iso" {
+  default = "cloud.img"
 }

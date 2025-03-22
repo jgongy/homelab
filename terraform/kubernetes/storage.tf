@@ -44,13 +44,9 @@ resource "proxmox_virtual_environment_vm" "storage" {
     device = "socket"
   }
 
-  # scsihw      = "virtio-scsi-pci"
-  # bootdisk    = "scsi0"
-
   disk {
     datastore_id = var.datastore
-    # file_id      = proxmox_virtual_environment_download_file.cloud-init-iso.id
-    file_id      = "local:iso/cloud.img"
+    file_id      = "local:iso/${var.cloud_iso}"
     interface    = "virtio0"
     iothread     = true
     discard      = "on"
@@ -64,7 +60,7 @@ resource "proxmox_virtual_environment_vm" "storage" {
 
   network_device {
     model  = "virtio"
-    bridge = var.bridge
+    bridge = var.kubernetes_bridge
   }
 
   lifecycle {
