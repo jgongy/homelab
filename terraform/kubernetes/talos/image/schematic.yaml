@@ -1,0 +1,13 @@
+# POST to https://factory.talos.dev/schematics to get a schematic ID usable in
+# Terraform files
+# curl -X POST --data-binary @terraform/kubernetes/images/talos/schematic.yaml -H "Content-type: text/x-yaml" https://factory.talos.dev/schematics
+customization:
+  systemExtensions:
+    officialExtensions:
+      # For Proxmox to better control the virtual machine
+      - siderolabs/qemu-guest-agent
+
+      # Needed to support Kubernetes interactions with Intel encoding and
+      # decoding for services like Plex or Jellyfin
+      - siderolabs/i915-ucode
+      - siderolabs/intel-ucode

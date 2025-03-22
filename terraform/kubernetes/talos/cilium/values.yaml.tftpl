@@ -1,0 +1,49 @@
+kubeProxyReplacement: true
+
+# Talos specific
+# https://www.talos.dev/latest/kubernetes-guides/configuration/kubeprism/
+k8sServiceHost: "localhost"
+k8sServicePort: 7445
+
+securityContext:
+  capabilities:
+    ciliumAgent: [ CHOWN, KILL, NET_ADMIN, NET_RAW, IPC_LOCK, SYS_ADMIN, SYS_RESOURCE, DAC_OVERRIDE, FOWNER, SETGID, SETUID ]
+    cleanCiliumState: [ NET_ADMIN, SYS_ADMIN, SYS_RESOURCE ]
+
+cgroup:
+  autoMount:
+    enabled: false
+  hostRoot: "/sys/fs/cgroup"
+
+ipam:
+  operator:
+    clusterPoolIPv4PodCIDRList: ${pod_cidr_subnet}
+
+# "Talos Linux’s Forwarding kube-dns to Host DNS (enabled by default since Talos
+# 1.8+) doesn’t work together with Cilium’s eBPF Host-Routing. To make it work,
+# you must set bpf.hostLegacyRouting to true as DNS won’t work otherwise."
+# ref: https://docs.cilium.io/en/stable/installation/k8s-install-helm/
+bpf:
+  hostLegacyRouting: true
+
+hubble:
+  enabled: true
+  relay:
+    enabled: true
+    rollOutPods: true
+  ui:
+    enabled: true
+    rollOutPods: true
+
+# bgpControlPlane:
+#   enabled: true
+#
+# l2announcements:
+#   enabled: true
+#   leaseDuration: "3s"
+#   leaseRenewDeadline: "1s"
+#   leaseRetryPeriod: "200ms"
+#
+# k8sClientRateLimit:
+#   qps: 33
+#   burst: 20

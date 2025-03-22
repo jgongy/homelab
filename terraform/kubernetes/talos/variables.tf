@@ -1,0 +1,73 @@
+variable "cluster" {
+  description = "Cluster configuration"
+  type = object({
+    name            = string
+    endpoint        = string
+    gateway         = string
+    internal_subnet = string
+    service_subnet  = string
+    pod_cidr_subnet = string
+
+    # Should be an address in the service_subnet, found via
+    # the clusterIP field in 'kubectl get svc -n kube-system kube-dns`
+    # If not set, `cilium connectivity test --debug` fails because it tries to
+    # connect to the default clusterDNS IP of `10.96.0.10`.
+    # TODO: Investigate whether there's a way this doesn't need to be set
+    # manually.
+    cluster_dns_ips = optional(list(string), [])
+    talos_version   = string
+    k8s_version     = string
+    proxmox_cluster = string
+  })
+}
+
+variable "bridges" {
+  description = "Bridges to create"
+  type = map(object({
+    host_node     = string
+    address       = string
+    vlan_aware    = optional(bool, false)
+    description   = optional(string, "")
+  }))
+}
+
+variable "nodes" {
+  description = "Configuration for Kubernetes nodes"
+  type = map(object({
+    host_node     = string
+    k8s_node_type = string
+    datastore_id  = string
+    external_ip   = string
+    external_mask = string
+    internal_ip   = string
+    internal_mask = string
+    mac_address   = optional(string, "")
+    vm_id         = number
+    cpu_cores     = number
+    cpu_type      = string
+    ram_dedicated = number
+    update        = optional(bool, false)
+  }))
+}
+
+variable "image" {
+  description = "Talos image configuration"
+  type = object({
+    factory_url = optional(string, "https://factory.talos.dev")
+    schematic = string
+    version   = string
+    update_schematic = optional(string)
+    update_version = optional(string)
+    arch = optional(string, "amd64")
+    platform = optional(string, "nocloud")
+    proxmox_datastore = string
+  })
+}
+
+variable "cilium" {
+  description = "Cilium configuration"
+  type = object({
+    bootstrap = string
+    values  = string
+  })
+}

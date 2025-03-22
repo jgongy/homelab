@@ -1,0 +1,61 @@
+machine:
+  kubelet:
+    nodeIP:
+      validSubnets:
+        - ${internal_subnet}
+    image: "ghcr.io/siderolabs/kubelet:${k8s_version}"
+    %{if length(cluster_dns_ips) > 0 }
+    clusterDNS:
+    %{ for ip in cluster_dns_ips }
+      - ${ip}
+    %{ endfor ~}
+    %{ endif ~}
+
+  network:
+    hostname: ${hostname}
+    interfaces:
+      - interface: eth0
+        vip:
+          ip: ${vip}
+  nodeLabels:
+    topology.kubernetes.io/region: ${cluster_name}
+    topology.kubernetes.io/zone: ${node_name}
+
+cluster:
+  allowSchedulingOnControlPlanes: true
+  network:
+    podSubnets:
+      - ${pod_cidr_subnet}
+    serviceSubnets:
+      - ${service_subnet}
+    cni:
+      name: none
+  proxy:
+    disabled: true
+    # image: "registry.k8s.io/kube-proxy:${k8s_version}"
+  apiServer:
+    image: "registry.k8s.io/kube-apiserver:${k8s_version}"
+  controllerManager:
+    image: "registry.k8s.io/kube-controller-manager:${k8s_version}"
+  scheduler:
+    image: "registry.k8s.io/kube-scheduler:${k8s_version}"
+  # discovery:
+  #   enabled: true
+  #   registries:
+  #     service:
+  #       disabled: false
+  etcd:
+    advertisedSubnets:
+      - ${internal_subnet}
+    listenSubnets:
+      - ${internal_subnet}
+  # NOTE: Not needed if using Traefik Gateway resources
+  # Optional Gateway API CRDs
+  # extraManifests:
+  # - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.1.0/config/crd/standard/gateway.networking.k8s.io_gatewayclasses.yaml
+  # - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.1.0/config/crd/experimental/gateway.networking.k8s.io_gateways.yaml
+  # - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.1.0/config/crd/standard/gateway.networking.k8s.io_httproutes.yaml
+  # - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.1.0/config/crd/standard/gateway.networking.k8s.io_referencegrants.yaml
+  # - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.1.0/config/crd/standard/gateway.networking.k8s.io_grpcroutes.yaml
+  # - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.1.0/config/crd/experimental/gateway.networking.k8s.io_tlsroutes.yaml
+  inlineManifests: ${inline_manifests}

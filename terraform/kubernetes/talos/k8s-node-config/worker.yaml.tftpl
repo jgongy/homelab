@@ -1,0 +1,19 @@
+machine:
+  kubelet:
+    nodeIP:
+      validSubnets:
+        - ${internal_subnet}
+    image: "ghcr.io/siderolabs/kubelet:${k8s_version}"
+    %{if length(cluster_dns_ips) > 0 }
+    clusterDNS:
+    %{ for ip in cluster_dns_ips }
+      - ${ip}
+    %{ endfor ~}
+    %{ endif ~}
+
+
+  network:
+    hostname: ${hostname}
+  nodeLabels:
+    topology.kubernetes.io/region: ${cluster_name}
+    topology.kubernetes.io/zone: ${node_name}
