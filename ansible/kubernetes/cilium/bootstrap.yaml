@@ -1,4 +1,7 @@
 ---
+- name: Install Helm
+  import_playbook: ../utilities/helm.yaml
+
 - name: Install Cilium
   import_playbook: cilium.yaml
 

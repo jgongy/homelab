@@ -4,8 +4,6 @@ metadata:
   name: cilium-l2-announcement-policy
 spec:
   externalIPs: true
-  # interfaces:
-  # - ens19
   loadBalancerIPs: true
   nodeSelector:
     matchLabels:

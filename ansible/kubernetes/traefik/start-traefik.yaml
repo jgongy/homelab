@@ -2,5 +2,8 @@
 - name: Create virtual environment
   import_playbook: ../utilities/venv.yaml
 
+- name: Install Helm
+  import_playbook: ../utilities/helm.yaml
+
 - name: Initialize Traefik Gateway
   import_playbook: traefik.yaml
