@@ -44,7 +44,7 @@ resource "proxmox_virtual_environment_vm" "tailscale" {
     }
 
     user_account {
-      var.user
+      user = var.user
     }
   }
 
