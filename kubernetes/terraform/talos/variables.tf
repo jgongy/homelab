@@ -18,6 +18,7 @@ variable "cluster" {
     talos_version   = string
     k8s_version     = string
     proxmox_cluster = string
+    extra_manifests = optional(list(string))
   })
 }
 
@@ -47,6 +48,7 @@ variable "nodes" {
     cpu_type      = string
     ram_dedicated = number
     update        = optional(bool, false)
+    node_labels   = map(string)
   }))
 }
 

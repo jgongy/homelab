@@ -1,4 +1,8 @@
+# Replace the default kubeProxy installation. Required for Gateway API to work.
 kubeProxyReplacement: true
+
+# Roll out Cilium pods when the ConfigMap is updated.
+rollOutCiliumPods: true
 
 # Talos specific
 # https://www.talos.dev/latest/kubernetes-guides/configuration/kubeprism/
@@ -35,15 +39,31 @@ hubble:
     enabled: true
     rollOutPods: true
 
-# bgpControlPlane:
-#   enabled: true
-#
-# l2announcements:
-#   enabled: true
-#   leaseDuration: "3s"
-#   leaseRenewDeadline: "1s"
-#   leaseRetryPeriod: "200ms"
-#
-# k8sClientRateLimit:
-#   qps: 33
-#   burst: 20
+gatewayAPI:
+  enabled: true
+
+# Allows Gateway API to listen on privileged ports (i.e. below 1023)
+# ref: https://docs.cilium.io/en/stable/network/servicemesh/gateway-api/gateway-api/#bind-to-privileged-port
+envoy:
+  enabled: true
+  securityContext:
+    capabilities:
+      keepCapNetBindService: true
+      envoy: [ NET_ADMIN, PERFMON, BPF ]
+
+# Allows the creation of services of type `io.cilium/l2-announcer`
+# LoadBalancer
+l2announcements:
+  enabled: true
+  leaseDuration: "3s"
+  leaseRenewDeadline: "1s"
+  leaseRetryPeriod: "200ms"
+
+k8sClientRateLimit:
+  qps: 33
+  burst: 20
+
+# Allows the creation of services of type `io.cilium/bgp-control-plane`
+# LoadBalancer. Only works if the router supports BGP.
+bgpControlPlane:
+  enabled: true

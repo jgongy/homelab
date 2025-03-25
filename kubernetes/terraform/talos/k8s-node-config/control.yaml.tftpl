@@ -17,9 +17,7 @@ machine:
       - interface: eth0
         vip:
           ip: ${vip}
-  nodeLabels:
-    topology.kubernetes.io/region: ${cluster_name}
-    topology.kubernetes.io/zone: ${node_name}
+  nodeLabels: ${node_labels}
 
 cluster:
   allowSchedulingOnControlPlanes: true
@@ -39,23 +37,10 @@ cluster:
     image: "registry.k8s.io/kube-controller-manager:${k8s_version}"
   scheduler:
     image: "registry.k8s.io/kube-scheduler:${k8s_version}"
-  # discovery:
-  #   enabled: true
-  #   registries:
-  #     service:
-  #       disabled: false
   etcd:
     advertisedSubnets:
       - ${internal_subnet}
     listenSubnets:
       - ${internal_subnet}
-  # NOTE: Not needed if using Traefik Gateway resources
-  # Optional Gateway API CRDs
-  # extraManifests:
-  # - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.1.0/config/crd/standard/gateway.networking.k8s.io_gatewayclasses.yaml
-  # - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.1.0/config/crd/experimental/gateway.networking.k8s.io_gateways.yaml
-  # - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.1.0/config/crd/standard/gateway.networking.k8s.io_httproutes.yaml
-  # - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.1.0/config/crd/standard/gateway.networking.k8s.io_referencegrants.yaml
-  # - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.1.0/config/crd/standard/gateway.networking.k8s.io_grpcroutes.yaml
-  # - https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.1.0/config/crd/experimental/gateway.networking.k8s.io_tlsroutes.yaml
+  extraManifests: ${extra_manifests}
   inlineManifests: ${inline_manifests}

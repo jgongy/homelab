@@ -14,6 +14,4 @@ machine:
 
   network:
     hostname: ${hostname}
-  nodeLabels:
-    topology.kubernetes.io/region: ${cluster_name}
-    topology.kubernetes.io/zone: ${node_name}
+  nodeLabels: ${node_labels}

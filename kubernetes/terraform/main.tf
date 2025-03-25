@@ -4,19 +4,7 @@ module "talos" {
   providers = {
     proxmox = proxmox
   }
-  cluster = {
-    name            = "talos"
-    endpoint        = "10.0.15.8"
-    gateway         = "10.0.0.1"
-    service_subnet  = "10.0.16.0/20"
-    # Should match the address range of the bridge
-    internal_subnet = "172.0.15.0/24"
-    pod_cidr_subnet = "172.16.0.0/14"
-    cluster_dns_ips = ["10.0.16.10"]
-    talos_version   = "v1.9.5"
-    k8s_version     = "v1.32.2"
-    proxmox_cluster = "homelab"
-  }
+  cluster = var.talos_cluster_config
 
   bridges = {
     "vmbr008" = {
@@ -41,6 +29,7 @@ module "talos" {
       cpu_cores     = 2
       cpu_type      = "x86-64-v2-AES"
       ram_dedicated = 2048
+      node_labels   = {}
     }
     "k-control-01" = {
       host_node     = "hp-envy"
@@ -54,6 +43,7 @@ module "talos" {
       cpu_cores     = 2
       cpu_type      = "x86-64-v2-AES"
       ram_dedicated = 2048
+      node_labels   = {}
     }
     "k-worker-00" = {
       host_node     = "hp-envy"
@@ -67,6 +57,7 @@ module "talos" {
       cpu_cores     = 2
       cpu_type      = "x86-64-v2-AES"
       ram_dedicated = 2048
+      node_labels   = {}
     }
   }
 

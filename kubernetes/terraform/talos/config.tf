@@ -52,11 +52,17 @@ data "talos_machine_configuration" "this" {
       merge(
         {
           hostname = each.key
-          node_name = each.value.host_node
-          cluster_name     = var.cluster.proxmox_cluster
           internal_subnet  = var.cluster.internal_subnet
           k8s_version      = var.cluster.k8s_version
           cluster_dns_ips  = var.cluster.cluster_dns_ips
+          node_labels      = jsonencode(merge(
+            {
+              "topology.kubernetes.io/region": var.cluster.proxmox_cluster
+              "topology.kubernetes.io/zone": each.value.host_node
+              "bgp-policy": "all"
+            },
+            each.value.node_labels
+          ))
         },
         each.value.k8s_node_type == "controlplane" ? {
           cilium_values    = var.cilium.values
@@ -65,6 +71,7 @@ data "talos_machine_configuration" "this" {
           pod_cidr_subnet  = var.cluster.pod_cidr_subnet
           vip              = var.cluster.endpoint
           inline_manifests = jsonencode(terraform_data.cilium_bootstrap_inline_manifests.output)
+          extra_manifests  = jsonencode(var.cluster.extra_manifests)
         } : { /* Worker values go here */ }
       )
     )
