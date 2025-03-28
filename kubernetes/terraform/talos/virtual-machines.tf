@@ -56,13 +56,11 @@ resource "proxmox_virtual_environment_vm" "this" {
     file_format  = "raw"
   }
 
-  network_device {
-    model       = "virtio"
-    bridge      = "vmbr0"
-  }
-
-  network_device {
-    model       = "virtio"
-    bridge      = "vmbr008"
+  dynamic "network_device" {
+    for_each = var.bridges
+    content {
+      bridge = network_device.value.name
+      model = network_device.value.model
+    }
   }
 }

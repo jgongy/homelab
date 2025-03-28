@@ -6,15 +6,16 @@ module "talos" {
   }
   cluster = var.talos_cluster_config
 
-  bridges = {
-    "vmbr008" = {
-      host_node     = "hp-envy"
-      # Should match the internal_subnet of the cluster
-      address       = "172.0.15.0/24"
-      vlan_aware    = true
-      description   = "Kubernetes internal bridge"
+  bridges = [
+    {
+      name = "vmbr0"
+      model = "virtio"
+    },
+    {
+      name = "vmbr008"
+      model = "virtio"
     }
-  }
+  ]
 
   nodes = {
     "k-control-00" = {

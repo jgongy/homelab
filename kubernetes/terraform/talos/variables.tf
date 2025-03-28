@@ -23,12 +23,10 @@ variable "cluster" {
 }
 
 variable "bridges" {
-  description = "Bridges to create"
-  type = map(object({
-    host_node     = string
-    address       = string
-    vlan_aware    = optional(bool, false)
-    description   = optional(string, "")
+  description = "Affects the network devices Talos VMs have interfaces for"
+  type = list(object({
+    model = string
+    name = string
   }))
 }
 
