@@ -62,8 +62,18 @@ module "talos" {
   }
 
   image = {
-    schematic = file("${path.module}/../talos/image/schematic.yaml")
+    architecture = "amd64"
+    platform = "nocloud"
     version   = "v1.9.5"
+    extensions = [
+      # For Proxmox to better control the virtual machine
+      "siderolabs/qemu-guest-agent",
+
+      # Needed to support Kubernetes interactions with Intel encoding and
+      # decoding for services like Plex or Jellyfin
+      # "siderolabs/i915-ucode",
+      "siderolabs/intel-ucode",
+    ]
     proxmox_datastore = "local"
   }
 

@@ -55,13 +55,12 @@ variable "nodes" {
 variable "image" {
   description = "Talos image configuration"
   type = object({
-    factory_url = optional(string, "https://factory.talos.dev")
-    schematic = string
+    architecture = string
+    platform = string
+    extensions = list(string)
+    update_extensions = optional(list(string))
     version   = string
-    update_schematic = optional(string)
     update_version = optional(string)
-    arch = optional(string, "amd64")
-    platform = optional(string, "nocloud")
     proxmox_datastore = string
   })
 }

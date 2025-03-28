@@ -43,7 +43,12 @@ resource "proxmox_virtual_environment_vm" "this" {
 
   disk {
     datastore_id = each.value.datastore_id
-    file_id      = proxmox_virtual_environment_download_file.this["${each.value.host_node}_${each.value.update == true ? local.update_image_id : local.image_id}"].id
+    file_id      = proxmox_virtual_environment_download_file.this[join("_", [
+                      "${each.value.host_node}",
+                      "${each.value.update == true ? local.update_version : local.version}",
+                      "${join(",", each.value.update == true ? local.update_extensions : var.image.extensions)}",
+                      "${each.value.update == true ? "update" : "current"}",
+                    ])].id
     interface    = "virtio0"
     iothread     = true
     discard      = "on"
