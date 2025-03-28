@@ -1,5 +1,5 @@
 module "talos" {
-  source = "./talos"
+  source = "../talos"
 
   providers = {
     proxmox = proxmox
@@ -62,14 +62,14 @@ module "talos" {
   }
 
   image = {
-    schematic = file("${path.module}/talos/image/schematic.yaml")
+    schematic = file("${path.module}/../talos/image/schematic.yaml")
     version   = "v1.9.5"
     proxmox_datastore = "local"
   }
 
 
   cilium = {
-    bootstrap = file("${path.module}/talos/cilium/bootstrap.yaml")
-    values = file("${path.module}/talos/cilium/values.yaml.tftpl")
+    bootstrap = file("${path.module}/../talos/cilium/bootstrap.yaml")
+    values = file("${path.module}/../talos/cilium/values.yaml.tftpl")
   }
 }
