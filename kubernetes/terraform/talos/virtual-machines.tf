@@ -21,9 +21,15 @@ resource "proxmox_virtual_environment_vm" "this" {
         gateway = var.cluster.gateway
       }
     }
-    ip_config {
-      ipv4 {
-        address = "${each.value.internal_ip}/${each.value.internal_mask}"
+    dynamic "ip_config" {
+      for_each = each.value.internal_ip != null ? [{
+        ip = each.value.internal_ip,
+        mask = each.value.internal_mask,
+      }] : []
+      content {
+        ipv4 {
+          address = "${ip_config.value.ip}/${ip_config.value.mask}"
+        }
       }
     }
   }

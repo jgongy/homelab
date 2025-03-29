@@ -1,9 +1,13 @@
 machine:
   kubelet:
+    image: "ghcr.io/siderolabs/kubelet:${k8s_version}"
+
+    %{if internal_subnet != ""}
     nodeIP:
       validSubnets:
         - ${internal_subnet}
-    image: "ghcr.io/siderolabs/kubelet:${k8s_version}"
+    %{ endif ~}
+
     %{if length(cluster_dns_ips) > 0 }
     clusterDNS:
     %{ for ip in cluster_dns_ips }
@@ -13,10 +17,12 @@ machine:
 
   network:
     hostname: ${hostname}
+    %{if vip != ""}
     interfaces:
       - interface: eth0
         vip:
           ip: ${vip}
+    %{ endif }
   nodeLabels: ${node_labels}
 
 cluster:

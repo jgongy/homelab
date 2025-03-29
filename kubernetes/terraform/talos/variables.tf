@@ -2,9 +2,9 @@ variable "cluster" {
   description = "Cluster configuration"
   type = object({
     name            = string
-    endpoint        = string
+    endpoint        = optional(string)
     gateway         = string
-    internal_subnet = string
+    internal_subnet = optional(string)
     service_subnet  = string
     pod_cidr_subnet = string
 
@@ -38,8 +38,8 @@ variable "nodes" {
     datastore_id  = string
     external_ip   = string
     external_mask = string
-    internal_ip   = string
-    internal_mask = string
+    internal_ip   = optional(string)
+    internal_mask = optional(string)
     mac_address   = optional(string, "")
     vm_id         = number
     cpu_cores     = number
