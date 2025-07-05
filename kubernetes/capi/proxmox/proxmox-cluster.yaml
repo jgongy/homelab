@@ -1,0 +1,20 @@
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha1
+kind: ProxmoxCluster
+metadata:
+  name: proxmox-cluster
+  namespace: default
+spec:
+  allowedNodes:
+    - "hp-envy"
+  controlPlaneEndpoint:
+    host: "10.0.15.8"
+    port: 6443
+  dnsServers:
+    - "10.0.0.2"
+    - "8.8.8.8"
+  ipv4Config:
+    addresses:
+      - "10.0.15.0-10.0.15.7"
+      - "10.0.15.9-10.0.15.254"
+    gateway: "10.0.0.1"
+    prefix: 20

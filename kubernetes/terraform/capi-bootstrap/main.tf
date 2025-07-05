@@ -23,7 +23,7 @@ module "talos" {
       vm_id         = 200
       cpu_cores     = 2
       cpu_type      = "x86-64-v2-AES"
-      ram_dedicated = 2048
+      ram_dedicated = 3072
       node_labels   = {}
     }
   }
