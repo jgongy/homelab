@@ -1,5 +1,5 @@
 module "talos" {
-  source = "../talos"
+  source = "../../vm/talos"
 
   providers = {
     proxmox = proxmox
@@ -80,7 +80,7 @@ module "talos" {
 
 
   cilium = {
-    bootstrap = file("${path.module}/../talos/cilium/bootstrap.yaml")
-    values = file("${path.module}/../talos/cilium/values.yaml.tftpl")
+    bootstrap = file("${path.module}/../../vm/talos/cilium/bootstrap.yaml")
+    values = file("${path.module}/../../vm/talos/cilium/values.yaml.tftpl")
   }
 }
