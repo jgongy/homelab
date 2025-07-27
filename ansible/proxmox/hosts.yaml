@@ -6,16 +6,23 @@ nodes:
 desktops:
   hosts:
     beelink-eq14-1:
-      ansible_host: 10.0.10.1
+      ansible_host: 10.0.1.201
     beelink-eq14-2:
-      ansible_host: 10.0.10.2
+      ansible_host: 10.0.1.202
+    hp-prodesk-600-1:
+      ansible_host: 10.0.1.203
+    hp-prodesk-600-2:
+      ansible_host: 10.0.1.204
+    hp-prodesk-600-3:
+      ansible_host: 10.0.1.205
 
 laptops:
   hosts:
     laptop1:
-      ansible_host: 10.0.10.3
+      ansible_host: 10.0.1.206
 
 amd64:
   children:
+    desktops:
     laptops:
 
