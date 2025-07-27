@@ -1,9 +1,9 @@
 variable "proxmox_node" {
-  default = "hp-envy"
+  default = "hp-prodesk-600-1"
 }
 
 variable "gateway" {
-  default = "10.0.0.1"
+  default = "10.0.2.1"
 }
 
 variable "datastore" {
@@ -12,5 +12,9 @@ variable "datastore" {
 
 variable "user" {
   default = "debian"
+}
+
+variable "vlan" {
+  default = "140"
 }
 

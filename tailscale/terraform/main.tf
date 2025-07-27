@@ -2,7 +2,7 @@ terraform {
   required_providers {
     proxmox = {
       source = "bpg/proxmox"
-      version = "0.70.1"
+      version = "0.80.0"
     }
   }
 }
@@ -38,7 +38,7 @@ resource "proxmox_virtual_environment_vm" "tailscale" {
 
     ip_config {
       ipv4 {
-        address = "10.0.0.40/20"
+        address = "10.0.2.40/23"
         gateway = var.gateway
       }
     }
@@ -50,12 +50,12 @@ resource "proxmox_virtual_environment_vm" "tailscale" {
   }
 
   cpu {
-    cores = 2
+    cores = 1
     type  = "x86-64-v2-AES"
   }
 
   memory {
-    dedicated = 2048
+    dedicated = 1024
   }
 
   serial_device {
@@ -72,8 +72,9 @@ resource "proxmox_virtual_environment_vm" "tailscale" {
   }
 
   network_device {
-    model  = "virtio"
-    bridge = "vmbr0"
+    model   = "virtio"
+    bridge  = "vmbr0"
+    vlan_id = var.vlan
   }
 
   lifecycle {

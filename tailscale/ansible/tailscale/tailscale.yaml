@@ -37,7 +37,7 @@
           - "tailscale"
           - "up"
           - "--auth-key={{ auth_key }}"
-          - "--advertise-routes=10.0.0.0/20"
+          - "--advertise-routes=10.0.0.0/23"
           - "--advertise-exit-node"
 
     - name: Open firewall for exit nodes
