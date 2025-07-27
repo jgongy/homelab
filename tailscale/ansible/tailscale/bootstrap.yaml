@@ -1,4 +1,7 @@
 ---
+- name: Install packages
+  import_playbook: install.yaml
+
 - name: Install Tailscale
   import_playbook: tailscale.yaml
 
