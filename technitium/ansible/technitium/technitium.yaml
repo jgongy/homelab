@@ -1,0 +1,18 @@
+---
+- hosts: technitium 
+  gather_facts: yes
+
+  vars_files:
+    - vars.yaml
+
+  tasks:
+    - name: Download Technitium install script
+      ansible.builtin.get_url:
+        url: https://download.technitium.com/dns/install.sh
+        dest: /tmp/technitium-install.sh
+        mode: '0755'
+
+    - name: Install Technitium via the shell script.
+      become: yes
+      ansible.builtin.shell: /tmp/technitium-install.sh
+

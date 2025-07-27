@@ -1,0 +1,27 @@
+---
+- hosts: technitium 
+  gather_facts: yes
+
+  vars_files:
+    - vars.yaml
+
+  tasks:
+    - name: Install packages
+      become: yes
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+          - qemu-guest-agent
+          - dnsutils
+          - mariadb-server
+
+    - name: Start QEMU Guest Agent
+      become: yes
+      ansible.builtin.service:
+        name: qemu-guest-agent
+        state: "started"
+        enabled: true
+      

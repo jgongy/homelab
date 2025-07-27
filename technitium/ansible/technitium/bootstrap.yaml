@@ -1,0 +1,7 @@
+---
+- name: Install packages
+  import_playbook: install.yaml
+
+- name: Install Technitium
+  import_playbook: technitium.yaml
+
