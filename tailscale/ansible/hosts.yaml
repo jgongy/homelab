@@ -1,5 +1,5 @@
 tailscale:
   hosts:
     node1:
-      ansible_host: 10.0.2.140
+      ansible_host: 10.0.2.150
 

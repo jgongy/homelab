@@ -30,6 +30,13 @@
         packages:
           - tailscale
 
+    - name: Open firewall for exit nodes
+      become: yes
+      shell: |
+        echo 'net.ipv4.ip_forward = 1' | tee -a /etc/sysctl.d/99-tailscale.conf
+        echo 'net.ipv6.conf.all.forwarding = 1' | tee -a /etc/sysctl.d/99-tailscale.conf
+        sysctl -p /etc/sysctl.d/99-tailscale.conf
+
     - name: Run Tailscale
       become: yes
       command:
@@ -39,11 +46,4 @@
           - "--auth-key={{ auth_key }}"
           - "--advertise-routes=10.0.0.0/23"
           - "--advertise-exit-node"
-
-    - name: Open firewall for exit nodes
-      become: yes
-      shell: |
-        echo 'net.ipv4.ip_forward = 1' | tee -a /etc/sysctl.d/99-tailscale.conf
-        echo 'net.ipv6.conf.all.forwarding = 1' | tee -a /etc/sysctl.d/99-tailscale.conf
-        sysctl -p /etc/sysctl.d/99-tailscale.conf
 
