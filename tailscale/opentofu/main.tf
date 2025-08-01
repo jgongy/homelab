@@ -1,5 +1,5 @@
 module "debian" {
-  source = "../../terraform/vm/cloud-init"
+  source = "../../tofu/vm/cloud-init"
 
   providers = {
     proxmox = proxmox
