@@ -1,0 +1,4 @@
+---
+- name: Install OpenBao
+  import_playbook: openbao/bootstrap.yaml
+

@@ -1,4 +1,4 @@
-vault:
+openbao:
   hosts:
     node0:
       ansible_host: 10.0.14.10

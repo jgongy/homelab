@@ -2,6 +2,6 @@
 - name: Install packages
   import_playbook: install.yaml
 
-- name: Install Hashicorp Vault
-  import_playbook: vault.yaml
+- name: Install OpenBao
+  import_playbook: openbao.yaml
 

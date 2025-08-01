@@ -12,11 +12,11 @@ module "debian" {
   }
 
   nodes = {
-    "hashicorp-vault-00" = {
+    "openbao-00" = {
       host_node    = "beelink-eq14-1"
-      description  = "Hashicorp Vault Instance"
+      description  = "OpenBao Instance"
       datastore    = "local-zfs"
-      vm_id        = 1410
+      vm_id        = 14010
 
       cpu_cores    = 2
       cpu_type     = "x86-64-v2-AES"
@@ -39,11 +39,11 @@ module "debian" {
         size      = 8 # in GiB
       }
     }
-    "hashicorp-vault-01" = {
+    "openbao-01" = {
       host_node    = "beelink-eq14-2"
-      description  = "Hashicorp Vault Instance"
+      description  = "OpenBao Instance"
       datastore    = "local-zfs"
-      vm_id        = 1411
+      vm_id        = 14011
 
       cpu_cores    = 2
       cpu_type     = "x86-64-v2-AES"
@@ -66,11 +66,11 @@ module "debian" {
         size      = 8 # in GiB
       }
     }
-    "hashicorp-vault-02" = {
+    "openbao-02" = {
       host_node    = "hp-prodesk-600-1"
-      description  = "Hashicorp Vault Instance"
+      description  = "OpenBao Instance"
       datastore    = "local-zfs"
-      vm_id        = 1412
+      vm_id        = 14012
 
       cpu_cores    = 2
       cpu_type     = "x86-64-v2-AES"
@@ -93,11 +93,11 @@ module "debian" {
         size      = 8 # in GiB
       }
     }
-    "hashicorp-vault-ops" = {
+    "openbao-ops" = {
       host_node    = "hp-prodesk-600-2"
-      description  = "Hashicorp Vault Instance"
+      description  = "OpenBao Instance"
       datastore    = "local-zfs"
-      vm_id        = 1417
+      vm_id        = 14017
 
       cpu_cores    = 2
       cpu_type     = "x86-64-v2-AES"
@@ -128,7 +128,7 @@ module "debian" {
 
     content_type       = "import"
     url                = "https://cloud.debian.org/images/cloud/bookworm/20250703-2162/debian-12-genericcloud-amd64-20250703-2162.qcow2"
-    file_name          = "debian-12-genericcloud-amd64-for_hashicorp_vault.qcow2"
+    file_name          = "debian-12-genericcloud-amd64-for_openbao.qcow2"
     checksum           = "da702efced2cd98017790d0e00fee81f1e1404d3f990a4741f52e6f18bde9856d37799c053b3baa48805048a595d2a6a13c41b8287ec6f76ec27b7ef1b67a215"
     checksum_algorithm = "sha512"
   }

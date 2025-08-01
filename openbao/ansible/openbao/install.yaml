@@ -1,5 +1,5 @@
 ---
-- hosts: vault
+- hosts: openbao
   gather_facts: yes
 
   vars_files:

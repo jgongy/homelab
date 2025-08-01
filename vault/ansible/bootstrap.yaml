@@ -1,4 +1,0 @@
----
-- name: Install Hashicorp Vault
-  import_playbook: vault/bootstrap.yaml
-

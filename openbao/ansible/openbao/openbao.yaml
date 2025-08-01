@@ -1,0 +1,24 @@
+---
+- hosts: openbao
+  gather_facts: yes
+
+  vars_files:
+    - vars.yaml
+
+  tasks:
+    - name: Install packages needed for OpenBao
+      become: yes
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+          - xz-utils # Needed for unpacking the .deb package
+
+    - name: Install OpenBao
+      become: yes
+      apt:
+        deb: "https://github.com/openbao/openbao/releases/download/v2.3.1/bao_2.3.1_linux_amd64.deb"
+
+
