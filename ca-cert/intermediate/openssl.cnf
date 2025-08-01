@@ -1,0 +1,140 @@
+# Configuration file for OpenSSL to generate an intermediate certificate.
+# It is used to define the settings for a Certificate Authority (CA).
+
+[ ca ]
+# Specifies the default CA section to use.
+# In this case, it's 'CA_default'.
+default_ca = CA_default
+
+[ CA_default ]
+# The main directory for the CA.
+dir = .
+
+# Directory where issued certificates are stored.
+certs = $dir/certs
+
+# Directory for Certificate Revocation Lists (CRLs).
+crl_dir = $dir/crl
+
+# The database file to keep track of issued certificates.
+database = $dir/index.txt
+
+# Directory where new certificates are placed after signing.
+new_certs_dir = $dir
+
+# The path to the CA's self-signed root certificate.
+certificate = $dir/intermediate/ca.crt
+
+# The file containing the next serial number for a new certificate.
+# Not set so that the certificate serial is randomly generated.
+# serial = $dir/serial
+
+# The file for the next CRL number.
+crlnumber = $dir/crlnumber
+
+# The path to the CRL file.
+crl = $dir/crl/ca.crl
+
+# The path to the CA's private key.
+private_key = $dir/intermediate/ca.key
+
+# The X.509 extensions to apply to issued certificates.
+x509_extensions = usr_cert
+
+# Options for naming in a certificate.
+name_opt = ca_default
+
+# Options for certificate generation.
+cert_opt = ca_default
+
+# Default validity period for certificates in days (e.g., 3650 days = 10 years).
+default_days = 1825
+
+# Default message digest (hash) algorithm to use for signatures.
+default_md = sha512
+
+# If set to "no", OpenSSL won't preserve the request's distinguished name.
+preserve = no
+
+# The policy to use when checking if a subject's Distinguished Name matches the CA.
+# This policy is defined in the [ policy_match ] section.
+policy = policy_match
+
+[ policy_match ]
+# This section defines the policy for matching the Distinguished Name fields.
+# For a root CA, we can set these to "optional" to allow for flexibility.
+countryName = optional
+stateOrProvinceName = optional
+organizationName = optional
+organizationalUnitName = optional
+
+# The Common Name must be supplied.
+commonName = supplied
+
+emailAddress = optional
+
+[ req ]
+# This section defines the parameters for the certificate request.
+
+# Specifies the distinguished name section to use.
+distinguished_name = req_distinguished_name
+
+# Specifies the extensions to apply to the self-signed root certificate.
+x509_extensions = v3_ca
+
+# If "no", OpenSSL will not prompt for input and will use the values defined below.
+prompt = no
+
+# Ensures that strings are handled correctly.
+string_mask = utf8only
+
+[ req_distinguished_name ]
+# This section defines the Distinguished Name of the CA itself.
+# These values will be used to generate the root certificate.
+
+# Supplied via CLI
+# # Country Name
+# C = US
+# # State or Province Name
+# ST = New York
+# # Locality Name
+# L = New York
+# # Organization Name
+# O = Homelab
+# # Organizational Unit Name
+# OU = Homelab CA
+# # Common Name (the most important identifier)
+# CN = example.com
+
+[ v3_ca ]
+# This section defines the extensions for a CA certificate.
+# These extensions are what make a certificate a CA certificate.
+
+# A unique identifier for the certificate's public key.
+subjectKeyIdentifier = hash
+
+# Identifies the CA that issued this certificate.
+authorityKeyIdentifier = keyid:always,issuer:always
+
+# This is a critical extension. 'CA:true' means this certificate can be used
+# to sign other certificates. Setting 'pathlen:1' so there can only be at most
+# one more intermediate CA in the chain.
+basicConstraints = critical, CA:true, pathlen:1
+
+# Defines the purpose of the certificate's public key.
+# 'cRLSign' allows the key to sign CRLs.
+# 'keyCertSign' allows the key to sign other certificates.
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+
+# Restrict the domains for which this CA can issue certificates.
+# nameConstraints = critical, permitted;DNS:.jackie.gg, permitted;DNS:jackie.gg
+
+[ usr_cert ]
+# Extensions for client certificates (`man x509v3_config`).
+basicConstraints       = CA:FALSE
+nsCertType             = client, email
+nsComment              = "OpenSSL Generated Client Certificate"
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid,issuer
+keyUsage               = critical, nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage       = clientAuth, emailProtection
