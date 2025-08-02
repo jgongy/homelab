@@ -1,4 +1,9 @@
 openbao:
+  children:
+    nodes:
+    operators:
+
+nodes:
   hosts:
     node0:
       ansible_host: 10.0.14.10
@@ -6,6 +11,9 @@ openbao:
       ansible_host: 10.0.14.11
     node2:
       ansible_host: 10.0.14.12
-    ops:
+
+operators:
+  hosts:
+    operator0:
       ansible_host: 10.0.14.17
 

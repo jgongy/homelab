@@ -16,9 +16,14 @@
         packages:
           - xz-utils # Needed for unpacking the .deb package
 
-    - name: Install OpenBao
+    - name: Check if OpenBao binary exists
+      ansible.builtin.stat:
+        path: "/usr/bin/bao"
+      register: openbao_binary
+
+    - name: Install OpenBao if not installed
       become: yes
       apt:
         deb: "https://github.com/openbao/openbao/releases/download/v2.3.1/bao_2.3.1_linux_amd64.deb"
-
+      when: not openbao_binary.stat.exists
 
