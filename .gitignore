@@ -14,3 +14,5 @@ output/
 
 *.swp
 ca.key
+node*.key
+operator*.key
