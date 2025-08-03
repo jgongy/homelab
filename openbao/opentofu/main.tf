@@ -93,7 +93,7 @@ module "debian" {
         size      = 8 # in GiB
       }
     }
-    "openbao-ops" = {
+    "openbao-operator-00" = {
       host_node    = "hp-prodesk-600-2"
       description  = "OpenBao Instance"
       datastore    = "local-zfs"
