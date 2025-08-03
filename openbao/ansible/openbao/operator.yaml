@@ -1,0 +1,29 @@
+---
+- hosts: operators
+  gather_facts: yes
+
+  vars_files:
+    - vars.yaml
+
+  tasks:
+    - name: Copy the config file to the remote machine
+      become: yes
+      ansible.builtin.copy:
+        src:  "../../configs/operator.hcl"
+        dest: "/etc/openbao/openbao.hcl"
+        owner: openbao
+        group: openbao
+        mode: '0644'
+
+    - name: Start OpenBao
+      become: yes
+      ansible.builtin.service:
+        name: openbao
+        state: "started"
+        enabled: true
+
+    - name: Copy the transit autounseal policy to remote machine
+      ansible.builtin.copy:
+        src:  "../../configs/transit-autounseal-policy.hcl"
+        dest: "/tmp/transit-autounseal-policy.hcl"
+        mode: '0644'
