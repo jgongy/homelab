@@ -1,0 +1,8 @@
+haproxy:
+  children:
+    nodes:
+
+nodes:
+  hosts:
+    node0:
+      ansible_host: node-00.ha-proxy.internal.jackie.gg

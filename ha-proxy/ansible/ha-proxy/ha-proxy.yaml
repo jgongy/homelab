@@ -1,0 +1,33 @@
+---
+- hosts: haproxy
+  gather_facts: yes
+
+  vars_files:
+    - vars.yaml
+
+  tasks:
+    - name: Install packages needed for HA Proxy
+      become: yes
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+          - haproxy
+
+    - name: Copy the config file to the remote machine
+      become: yes
+      ansible.builtin.copy:
+        src:  "../../configs/haproxy.cfg"
+        dest: "/etc/haproxy/haproxy.cfg"
+        owner: haproxy
+        group: haproxy
+        mode: '0644'
+    
+    - name: Start and enable HA Proxy
+      become: yes
+      ansible.builtin.service:
+        name: haproxy
+        state: "reloaded"
+        enabled: true
