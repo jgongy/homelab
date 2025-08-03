@@ -55,6 +55,8 @@ default_md = sha512
 # If set to "no", OpenSSL won't preserve the request's distinguished name.
 preserve = no
 
+copy_extensions   = copy
+
 # The policy to use when checking if a subject's Distinguished Name matches the CA.
 # This policy is defined in the [ policy_match ] section.
 policy = policy_match
@@ -144,4 +146,5 @@ nsComment              = "OpenSSL Generated Server Certificate"
 subjectKeyIdentifier   = hash
 authorityKeyIdentifier = keyid,issuer
 keyUsage               = critical, digitalSignature, keyEncipherment
+# subjectAltName         = ${req_ext::subjectAltName}
 extendedKeyUsage       = serverAuth

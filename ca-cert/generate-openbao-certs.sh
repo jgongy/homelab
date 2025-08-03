@@ -17,11 +17,22 @@ function gen_csr() {
 
     local NODE_NAME="$1"
     local BASE_SUBJ="/C=US/ST=New York/L=New York/O=Homelab/OU=Homelab CA"
+    local BASE_URL="openbao.internal.jackie.gg"
+
+    local COMMON_NAME="${NODE_NAME}.${BASE_URL}"
+    local SUBJECT_ALT_NAME
+    if [[ "$NODE_NAME" == node* ]]; then
+        SUBJECT_ALT_NAME="${BASE_URL}"
+    else
+        SUBJECT_ALT_NAME="operator.${BASE_URL}"
+    fi
+
+    echo "Generating CSR for ${NODE_NAME}."
     openssl req                                           \
-        -config "${CA_CERT_DIR}/intermediate/openssl.cnf" \
         -new                                              \
         -key "${CERT_DIR}/${NODE_NAME}.key"               \
-        -subj "${BASE_SUBJ}/CN=${NODE_NAME}.openbao.internal.jackie.gg" \
+        -subj "${BASE_SUBJ}/CN=${COMMON_NAME}"            \
+        -addext "subjectAltName = DNS:${SUBJECT_ALT_NAME}, DNS:${COMMON_NAME}" \
         -out "${CERT_DIR}/openbao-${NODE_NAME}.csr"
 }
 
@@ -42,6 +53,7 @@ function gen_crt() {
     local INT_CA_CERT_PATH="${CA_CERT_DIR}/intermediate/ca.crt"
     local LEAF_CERT_PATH="${CERT_DIR}/openbao-${NODE_NAME}.crt"
 
+    echo "Generating certificate for ${NODE_NAME}."
     openssl ca                                             \
         -config  "${CA_CERT_DIR}/intermediate/openssl.cnf" \
         -days 90                                           \
