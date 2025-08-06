@@ -8,5 +8,5 @@
         file: ../../ansible/vm/debian-bootstrap.yaml
 
 - name: Install HA Proxy
-  import_playbook: ha-proxy/bootstrap.yaml
+  import_playbook: haproxy/bootstrap.yaml
 

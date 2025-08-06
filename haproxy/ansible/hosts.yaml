@@ -5,4 +5,4 @@ haproxy:
 nodes:
   hosts:
     node0:
-      ansible_host: node-00.ha-proxy.internal.jackie.gg
+      ansible_host: node-00.haproxy.internal.jackie.gg

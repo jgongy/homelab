@@ -12,9 +12,9 @@ module "debian" {
   }
 
   nodes = {
-    "ha-proxy-00" = {
+    "haproxy-00" = {
       host_node    = "beelink-eq14-1"
-      description  = "HA Proxy"
+      description  = "HAProxy"
       datastore    = "local-zfs"
       vm_id        = 14002
 

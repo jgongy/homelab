@@ -6,7 +6,21 @@
     - vars.yaml
 
   tasks:
-    - name: Install packages needed for HA Proxy
+    - name: Add HAProxy package repository
+      become: yes
+      deb822_repository:
+        name: haproxy
+        types: [deb]
+        architectures: [amd64]
+        uris: "http://haproxy.debian.net"
+        signed_by: "https://haproxy.debian.net/haproxy-archive-keyring.gpg"
+        suites: [bookworm-backports-3.2]
+        components:
+          - main
+        state: present
+        enabled: yes
+
+    - name: Install HAProxy
       become: yes
       apt:
         name: "{{ packages }}"
@@ -14,7 +28,7 @@
         update_cache: yes
       vars:
         packages:
-          - haproxy
+          - "haproxy=3.2.*"
 
     - name: Copy the config file to the remote machine
       become: yes
