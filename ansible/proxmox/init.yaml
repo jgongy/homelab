@@ -7,7 +7,6 @@
       - vars.yaml
 
   tasks:
-    
     - name: Copy authorized_keys onto the machine
       copy:
         src: "{{ lookup('env', 'HOME') }}/.ssh/{{ item.src }}"
@@ -28,3 +27,11 @@
         - .vimrc
         - .tmux.conf
 
+    - name: Create Ansible virtual environment
+      pip:
+        name: "{{ packages }}"
+        virtualenv: "{{ venv_dir }}/ansible"
+        virtualenv_command: "python3.11 -m venv"
+      vars:
+        packages:
+          - ansible

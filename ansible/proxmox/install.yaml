@@ -7,6 +7,30 @@
     - vars.yaml
 
   tasks:
+    - name: Add Debian repo with non-free firmware
+      deb822_repository:
+        name: debian
+        types: deb
+        uris: http://deb.debian.org/debian
+        signed_by: "/usr/share/keyrings/debian-archive-keyring.gpg"
+        suites: [trixie]
+        components:
+          - main
+          - contrib
+          - non-free-firmware
+
+    - name: Add Tailscale apt repository
+      deb822_repository:
+        name: tailscale
+        types: [deb]
+        uris: "https://pkgs.tailscale.com/stable/debian"
+        signed_by: "https://pkgs.tailscale.com/stable/debian/trixie.noarmor.gpg"
+        suites: [trixie]
+        components:
+          - main
+        state: present
+        enabled: yes
+
     - name: Install packages
       apt:
         name: "{{ packages }}"
@@ -15,36 +39,30 @@
       vars:
         packages:
           - vim
-          - python3.11
-          - python3.11-venv
           - curl
           - gnupg-agent
           - software-properties-common
           - tmux
           - sudo
           - corosync-qdevice
-          # TODO: Uncomment when it's figured out how to not install for Pi
-          # - libguestfs-tools # necessary for virt-customize
-
-    - name: Add Tailscale apt repository
-      deb822_repository:
-        name: tailscale
-        types: [deb]
-        uris: "https://pkgs.tailscale.com/stable/debian"
-        signed_by: "https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg"
-        suites: [bookworm]
-        components:
-          - main
-        state: present
-        enabled: yes
-
-    - name: Install Tailscale and networkd-dispatcher
-      apt:
-        name: "{{ packages }}"
-        state: present
-        update_cache: yes
-      vars:
-        packages:
           - tailscale
           - networkd-dispatcher
 
+    - name: Display CPU Vendor
+      debug:
+        # Vendor ID is typically at index 1
+        msg: "CPU Vendor for {{ inventory_hostname }}: {{ ansible_processor[1] }}"
+
+    - name: Install Intel microcode
+      apt:
+        name: intel-microcode
+        state: present
+        update_cache: yes
+      when: "'Intel' in ansible_processor[1]"
+
+    - name: Install AMD microcode
+      apt:
+        name: amd64-microcode
+        state: present
+        update_cache: yes
+      when: "'AMD' in ansible_processor[1]"
