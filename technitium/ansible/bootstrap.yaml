@@ -1,4 +1,12 @@
 ---
+- name: "Bootstrap Technitium"
+  hosts: all
+  vars:
+    internal_root_ca_path: "../../ca-cert/root/ca.crt"
+  tasks:
+    - name: Bootstrap Debian VM
+      ansible.builtin.import_tasks:
+        file: ../../ansible/vm/debian-bootstrap.yaml
+
 - name: Install Technitium
   import_playbook: technitium/bootstrap.yaml
-

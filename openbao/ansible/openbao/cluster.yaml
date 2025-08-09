@@ -1,5 +1,5 @@
 ---
-- name: "Set up operator configuration"
+- name: "Copy cluster configuration to remote machine"
   hosts: operators
   gather_facts: true
 
@@ -10,7 +10,7 @@
     - name: Copy the config file to the remote machine
       become: true
       ansible.builtin.copy:
-        src: "../../configs/operator.hcl"
+        src: "../../configs/cluster.hcl"
         dest: "/etc/openbao/openbao.hcl"
         owner: openbao
         group: openbao
@@ -22,9 +22,3 @@
         name: openbao
         state: "started"
         enabled: true
-
-    - name: Copy the transit autounseal policy to remote machine
-      ansible.builtin.copy:
-        src: "../../configs/transit-autounseal-policy.hcl"
-        dest: "/tmp/transit-autounseal-policy.hcl"
-        mode: "0644"

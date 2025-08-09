@@ -1,8 +1,8 @@
+---
 nodes:
   children:
     desktops:
     laptops:
-
 desktops:
   hosts:
     beelink-eq14-1:

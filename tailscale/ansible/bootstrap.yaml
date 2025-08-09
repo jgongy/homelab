@@ -1,12 +1,12 @@
 ---
-- hosts: all
+- name: "Bootstrap Tailscale"
+  hosts: all
   vars:
     internal_root_ca_path: "../../ca-cert/root/ca.crt"
   tasks:
     - name: Bootstrap Debian VM
-      import_tasks:
+      ansible.builtin.import_tasks:
         file: ../../ansible/vm/debian-bootstrap.yaml
 
 - name: Install Tailscale
   import_playbook: tailscale/bootstrap.yaml
-

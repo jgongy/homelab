@@ -2,6 +2,8 @@
 .envrc
 .direnv/
 .venv/
+.vscode/
+.ansible/
 
 .terraform.lock.hcl
 .terraform/

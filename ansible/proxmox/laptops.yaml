@@ -1,14 +1,15 @@
 ---
-- hosts: "laptops"
-  become: yes
-  gather_facts: yes
+- name: "Apply laptop-specific settings"
+  hosts: "laptops"
+  become: true
+  gather_facts: true
 
   vars_files:
-      - vars.yaml
+    - vars.yaml
 
   tasks:
     - name: Prevent shutdown on lid close
-      lineinfile:
+      ansible.builtin.lineinfile:
         dest: /etc/systemd/logind.conf
         regexp: "^#{{ item.key }}=.*$"
         line: "{{ item.key }}={{ item.value }}"
@@ -21,7 +22,6 @@
           value: ignore
 
     - name: Restart system-logind.service
-      service:
+      ansible.builtin.service:
         name: systemd-logind
         state: restarted
-    

@@ -1,17 +1,18 @@
 ---
-- hosts: technitium 
-  gather_facts: yes
+- name: "Install packages for Technitium"
+  hosts: technitium
+  gather_facts: true
 
   vars_files:
     - vars.yaml
 
   tasks:
     - name: Install packages
-      become: yes
-      apt:
+      become: true
+      ansible.builtin.apt:
         name: "{{ packages }}"
         state: present
-        update_cache: yes
+        update_cache: true
       vars:
         packages:
           - qemu-guest-agent
@@ -19,9 +20,8 @@
           - mariadb-server
 
     - name: Start QEMU Guest Agent
-      become: yes
+      become: true
       ansible.builtin.service:
         name: qemu-guest-agent
         state: "started"
         enabled: true
-      

@@ -1,14 +1,15 @@
 ---
-- hosts: tailscale
-  gather_facts: yes
+- name: "Install Tailscale repositories and package"
+  hosts: tailscale
+  gather_facts: true
 
   vars_files:
     - vars.yaml
 
   tasks:
     - name: Add Tailscale package repository
-      become: yes
-      deb822_repository:
+      become: true
+      ansible.builtin.deb822_repository:
         name: tailscale
         types: [deb]
         architectures: [amd64]
@@ -18,32 +19,34 @@
         components:
           - main
         state: present
-        enabled: yes
+        enabled: true
 
     - name: Install Tailscale
-      become: yes
-      apt:
+      become: true
+      ansible.builtin.apt:
         name: "{{ packages }}"
         state: present
-        update_cache: yes
+        update_cache: true
       vars:
         packages:
           - tailscale
 
     - name: Open firewall for exit nodes
-      become: yes
-      shell: |
+      become: true
+      ansible.builtin.shell: |
+        set -o pipefail
         echo 'net.ipv4.ip_forward = 1' | tee -a /etc/sysctl.d/99-tailscale.conf
         echo 'net.ipv6.conf.all.forwarding = 1' | tee -a /etc/sysctl.d/99-tailscale.conf
         sysctl -p /etc/sysctl.d/99-tailscale.conf
+      changed_when: true
 
     - name: Run Tailscale
-      become: yes
-      command:
+      become: true
+      ansible.builtin.command:
         argv:
           - "tailscale"
           - "up"
           - "--auth-key={{ auth_key }}"
           - "--advertise-routes=10.0.0.0/23"
           - "--advertise-exit-node"
-
+      changed_when: true

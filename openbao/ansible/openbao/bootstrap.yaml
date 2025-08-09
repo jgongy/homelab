@@ -4,4 +4,3 @@
 
 - name: Initialize the operator OpenBao node(s)
   import_playbook: operator.yaml
-

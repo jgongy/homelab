@@ -4,4 +4,3 @@
 
 - name: Install Technitium
   import_playbook: technitium.yaml
-

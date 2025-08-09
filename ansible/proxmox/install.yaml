@@ -1,14 +1,15 @@
 ---
-- hosts: "nodes"
-  become: yes
-  gather_facts: yes
+- name: "Set up repositories and install packages"
+  hosts: "nodes"
+  become: true
+  gather_facts: true
 
   vars_files:
     - vars.yaml
 
   tasks:
     - name: Add Debian repo with non-free firmware
-      deb822_repository:
+      ansible.builtin.deb822_repository:
         name: debian
         types: deb
         uris: http://deb.debian.org/debian
@@ -20,7 +21,7 @@
           - non-free-firmware
 
     - name: Add Tailscale apt repository
-      deb822_repository:
+      ansible.builtin.deb822_repository:
         name: tailscale
         types: [deb]
         uris: "https://pkgs.tailscale.com/stable/debian"
@@ -29,13 +30,13 @@
         components:
           - main
         state: present
-        enabled: yes
+        enabled: true
 
     - name: Install packages
-      apt:
+      ansible.builtin.apt:
         name: "{{ packages }}"
         state: present
-        update_cache: yes
+        update_cache: true
       vars:
         packages:
           - vim
@@ -49,20 +50,20 @@
           - networkd-dispatcher
 
     - name: Display CPU Vendor
-      debug:
+      ansible.builtin.debug:
         # Vendor ID is typically at index 1
         msg: "CPU Vendor for {{ inventory_hostname }}: {{ ansible_processor[1] }}"
 
     - name: Install Intel microcode
-      apt:
+      ansible.builtin.apt:
         name: intel-microcode
         state: present
-        update_cache: yes
+        update_cache: true
       when: "'Intel' in ansible_processor[1]"
 
     - name: Install AMD microcode
-      apt:
+      ansible.builtin.apt:
         name: amd64-microcode
         state: present
-        update_cache: yes
+        update_cache: true
       when: "'AMD' in ansible_processor[1]"

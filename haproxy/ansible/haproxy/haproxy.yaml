@@ -1,14 +1,15 @@
 ---
-- hosts: haproxy
-  gather_facts: yes
+- name: "Install HAProxy repositories and packages"
+  hosts: haproxy
+  gather_facts: true
 
   vars_files:
     - vars.yaml
 
   tasks:
     - name: Add HAProxy package repository
-      become: yes
-      deb822_repository:
+      become: true
+      ansible.builtin.deb822_repository:
         name: haproxy
         types: [deb]
         architectures: [amd64]
@@ -18,29 +19,29 @@
         components:
           - main
         state: present
-        enabled: yes
+        enabled: true
 
     - name: Install HAProxy
-      become: yes
-      apt:
+      become: true
+      ansible.builtin.apt:
         name: "{{ packages }}"
         state: present
-        update_cache: yes
+        update_cache: true
       vars:
         packages:
           - "haproxy=3.2.*"
 
     - name: Copy the config file to the remote machine
-      become: yes
+      become: true
       ansible.builtin.copy:
-        src:  "../../configs/haproxy.cfg"
+        src: "../../configs/haproxy.cfg"
         dest: "/etc/haproxy/haproxy.cfg"
         owner: haproxy
         group: haproxy
-        mode: '0644'
-    
+        mode: "0644"
+
     - name: Start and enable HA Proxy
-      become: yes
+      become: true
       ansible.builtin.service:
         name: haproxy
         state: "reloaded"

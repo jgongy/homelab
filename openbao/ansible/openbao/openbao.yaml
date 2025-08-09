@@ -1,17 +1,18 @@
 ---
-- hosts: openbao
-  gather_facts: yes
+- name: "Set up environment for OpenBao"
+  hosts: openbao
+  gather_facts: true
 
   vars_files:
     - vars.yaml
 
   tasks:
     - name: Install packages needed for OpenBao
-      become: yes
-      apt:
+      become: true
+      ansible.builtin.apt:
         name: "{{ packages }}"
         state: present
-        update_cache: yes
+        update_cache: true
       vars:
         packages:
           - xz-utils # Needed for unpacking the .deb package
@@ -22,50 +23,50 @@
       register: openbao_binary
 
     - name: Install OpenBao if not installed
-      become: yes
-      apt:
+      become: true
+      ansible.builtin.apt:
         deb: "https://github.com/openbao/openbao/releases/download/v2.3.1/bao_2.3.1_linux_amd64.deb"
       when: not openbao_binary.stat.exists
 
     - name: Create data directory
-      become: yes
+      become: true
       ansible.builtin.file:
         path: "/homelab/storage/openbao/data/"
         state: directory
         owner: openbao
         group: openbao
-        mode: '0755'
+        mode: "0755"
 
     - name: Create config directory
-      become: yes
+      become: true
       ansible.builtin.file:
         path: "/etc/openbao/"
         state: directory
-        mode: '0755'
+        mode: "0755"
 
     - name: Create TLS directory for certificates and keys
-      become: yes
+      become: true
       ansible.builtin.file:
         path: "/homelab/openbao/tls/"
         state: directory
         owner: openbao
         group: openbao
-        mode: '0755'
+        mode: "0755"
 
     - name: Copy the TLS certificate key
-      become: yes
+      become: true
       ansible.builtin.copy:
-        src:  "../../certificates/{{ inventory_hostname }}.key"
+        src: "../../certificates/{{ inventory_hostname }}.key"
         dest: "/homelab/openbao/tls/openbao-node.key"
         owner: openbao
         group: openbao
-        mode: '0644'
+        mode: "0644"
 
     - name: Copy the TLS certificate bundle
-      become: yes
+      become: true
       ansible.builtin.copy:
-        src:  "../../certificates/openbao-{{ inventory_hostname }}.bundle.pem"
+        src: "../../certificates/openbao-{{ inventory_hostname }}.bundle.pem"
         dest: "/homelab/openbao/tls/openbao-node.bundle.pem"
         owner: openbao
         group: openbao
-        mode: '0644'
+        mode: "0644"
