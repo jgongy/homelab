@@ -1,0 +1,43 @@
+ui            = true
+
+# The address for this node to receive intra-cluster traffic from other nodes.
+# The TLS certificate is managed internally.
+cluster_addr  = "https://{{ ansible_host }}:8201"
+
+# The address for this node to receive external traffic should other nodes
+# be unable to internally forward requests.
+api_addr      = "https://{{ ansible_host }}:8200"
+
+listener "tcp" {
+  # Should match the `api_addr` field.
+  address         = "{{ ansible_host }}:8200"
+
+  # To reload, run 'sudo pkill -HUP openbao'
+  tls_cert_file = "/homelab/openbao/tls/openbao-node.bundle.pem"
+  tls_key_file  = "/homelab/openbao/tls/openbao-node.key"
+  tls_cipher_suites = "TLS_CHACHA20_POLY1305_SHA256"
+}
+
+storage "raft" {
+  path    = "/homelab/storage/openbao/data"
+  node_id = "{{ inventory_hostname }}"
+}
+
+# telemetry {
+#   statsite_address = "127.0.0.1:8125"
+#   disable_hostname = true
+# }
+
+seal "transit" {
+  address            = "https://operator.openbao.internal.jackie.gg:8200"
+  token              = "{{ autounseal_token }}"
+  disable_renewal    = "false"
+
+  # To reload, run 'sudo pkill -HUP openbao'
+  tls_ca_cert = "/usr/local/share/ca-certificates/internal-root-ca.crt"
+  tls_server_name = "operator.openbao.internal.jackie.gg"
+
+  // Key configuration
+  key_name           = "autounseal-key"
+  mount_path         = "transit/"
+}

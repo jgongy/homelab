@@ -1,7 +1,7 @@
-path "transit/encrypt/autounseal" {
+path "transit/encrypt/autounseal-key" {
    capabilities = [ "update" ]
 }
 
-path "transit/decrypt/autounseal" {
+path "transit/decrypt/autounseal-key" {
    capabilities = [ "update" ]
 }

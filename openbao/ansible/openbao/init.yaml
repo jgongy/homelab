@@ -1,0 +1,52 @@
+---
+- name: Initialize OpenBao
+  ansible.builtin.command:
+    argv:
+      - "bao"
+      - "operator"
+      - "init"
+      - "-format=json"
+      - "-{{ 'key' if 'operators' in group_names else 'recovery' }}-shares=1"
+      - "-{{ 'key' if 'operators' in group_names else 'recovery' }}-threshold=1"
+      - "-{{ '' if 'operators' in group_names else 'recovery-' }}pgp-keys=keybase:jcgong"
+  environment:
+    VAULT_ADDR: "https://{{ ansible_host }}:8200"
+  register: init_output
+  changed_when: init_output.rc == 0
+
+- name: Retrieve the initalization output
+  ansible.builtin.set_fact:
+    bao_init: "{{ init_output.stdout }}"
+
+- name: Retrieve the unseal or recovery token from initialization
+  ansible.builtin.set_fact:
+    unseal_or_recovery_token: "{{ bao_init | community.general.json_query(query) }}"
+  vars:
+    query: "{{ 'unseal_keys_b64' if 'operators' in group_names else 'recovery_keys_b64' }}[0]"
+
+- name: Retrieve the root token from initialization
+  ansible.builtin.set_fact:
+    root_token: "{{ bao_init | community.general.json_query(root_query) }}"
+  vars:
+    root_query: "root_token"
+
+- name: Store initalization output
+  delegate_to: localhost
+  ansible.builtin.copy:
+    content: "{{ bao_init }}"
+    dest: "/tmp/{{ inventory_hostname }}_init_output.txt"
+    mode: "0644"
+
+- name: Store unseal or recovery token
+  delegate_to: localhost
+  ansible.builtin.copy:
+    content: "{{ unseal_or_recovery_token }}"
+    dest: /tmp/{{ inventory_hostname }}_unseal_or_recovery.txt
+    mode: "0644"
+
+- name: Store initial root token
+  delegate_to: localhost
+  ansible.builtin.copy:
+    content: "{{ root_token }}"
+    dest: /tmp/{{ inventory_hostname }}_root_token.txt
+    mode: "0644"

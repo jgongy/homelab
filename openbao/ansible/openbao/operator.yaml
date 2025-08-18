@@ -5,6 +5,9 @@
 
   vars_files:
     - vars.yaml
+  vars:
+    env_vars:
+      VAULT_ADDR: "https://{{ ansible_host }}:8200"
 
   tasks:
     - name: Copy the config file to the remote machine
@@ -23,8 +26,129 @@
         state: "started"
         enabled: true
 
+    - name: Check if OpenBao is initialized
+      ansible.builtin.command:
+        argv:
+          - "bao"
+          - "operator"
+          - "init"
+          - "-status"
+      environment: "{{ env_vars }}"
+      register: is_initialized
+      failed_when: is_initialized.rc == 1
+      changed_when: false
+
+    - name: Initialize the OpenBao node
+      ansible.builtin.import_tasks:
+        file: ./init.yaml
+      # An exit code of 2 is not an error but a sign for uninitialized
+      when: is_initialized.rc == 2
+
+    - name: Check if OpenBao is unsealed
+      ansible.builtin.command:
+        argv:
+          - "bao"
+          - "status"
+      environment: "{{ env_vars }}"
+      register: is_unsealed
+      failed_when: is_unsealed.rc == 1
+      changed_when: false
+
+    # If missing the GPG key from keybase, need to retrieve from keybase.io
+    # and import via 'gpg --import /tmp/keybase.gpg' where the file contains
+    # private key.
+    - name: Decode unseal key
+      delegate_to: localhost
+      # TODO: Investigate if there is a good way to provide the passphrase to
+      # 'gpg' that is not '--passphrase <pw> --batch --pinentry-mode loopback'.
+      # Although the above flags work, on error the passphrase is logged to
+      # standard output. For now, it will prompt for the passphrase
+      # interactively.
+      # Explicitly piping to 'base64' instead of using 'b64decode' because
+      # Ansible does not handle the decoded input as standard input well.
+      ansible.builtin.shell: |
+        set -o pipefail
+        cat "/tmp/{{ inventory_hostname }}_unseal_or_recovery.txt" | base64 --decode | gpg --decrypt
+      register: decrypted_unseal_key
+      changed_when: false
+      # Exit code of 2 means the node is still sealed
+      when: is_unsealed.rc == 2
+
+    - name: Unseal the node
+      ansible.builtin.command:
+        argv:
+          - "bao"
+          - "operator"
+          - "unseal"
+          - "{{ decrypted_unseal_key.stdout }}"
+      environment: "{{ env_vars }}"
+      register: unseal_status
+      when: is_unsealed.rc == 2
+      changed_when: unseal_status.rc == 0
+
     - name: Copy the transit autounseal policy to remote machine
       ansible.builtin.copy:
         src: "../../configs/transit-autounseal-policy.hcl"
         dest: "/tmp/transit-autounseal-policy.hcl"
         mode: "0644"
+
+    - name: Retrieve the root token
+      ansible.builtin.set_fact:
+        vault_token: "{{ lookup('file', '/tmp/{{ inventory_hostname }}_root_token.txt') }}"
+      when: is_unsealed.rc == 2
+
+    - name: Enable Transit secrets engine
+      ansible.builtin.shell: |
+        set -o pipefail
+        bao secrets enable transit
+        bao write -f transit/keys/autounseal-key
+        bao policy write autounseal /tmp/transit-autounseal-policy.hcl
+      environment:
+        VAULT_ADDR: "https://operator.openbao.internal.jackie.gg:8200"
+        VAULT_TOKEN: "{{ vault_token }}"
+      register: transit_engine_enabled
+      when: is_unsealed.rc == 2
+      changed_when: is_unsealed.rc == 2
+      notify:
+        - Create the Transit autounseal token
+        - Unwrap the Transit autounseal token
+        - Store the autounseal token for the cluster nodes later
+
+  handlers:
+    - name: Create the Transit autounseal token
+      ansible.builtin.command:
+        argv:
+          - "bao"
+          - "token"
+          - "create"
+          - "-orphan"
+          - "-policy=autounseal"
+          - "-wrap-ttl=120"
+          - "-period=24h"
+          - "-field=wrapping_token"
+      environment:
+        VAULT_ADDR: "https://operator.openbao.internal.jackie.gg:8200"
+        VAULT_TOKEN: "{{ vault_token }}"
+      register: wrapped_autounseal_token
+      changed_when: transit_engine_enabled.changed
+
+    - name: Unwrap the Transit autounseal token
+      ansible.builtin.command:
+        argv:
+          - "bao"
+          - "unwrap"
+          - "-field=token"
+          - "{{ wrapped_autounseal_token.stdout }}"
+      environment:
+        VAULT_ADDR: "https://operator.openbao.internal.jackie.gg:8200"
+        VAULT_TOKEN: "{{ vault_token }}"
+      register: autounseal_token
+      changed_when: transit_engine_enabled.changed
+
+    - name: Store the autounseal token for the cluster nodes later
+      delegate_to: localhost
+      ansible.builtin.copy:
+        content: "{{ autounseal_token.stdout }}"
+        dest: /tmp/cluster_autounseal.txt
+        mode: "0644"
+      changed_when: transit_engine_enabled.changed

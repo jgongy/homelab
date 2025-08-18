@@ -16,6 +16,7 @@
       vars:
         packages:
           - xz-utils # Needed for unpacking the .deb package
+          - jq
 
     - name: Check if OpenBao binary exists
       ansible.builtin.stat:

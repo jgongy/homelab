@@ -127,9 +127,9 @@ module "debian" {
     datastore          = "local"
 
     content_type       = "import"
-    url                = "https://cloud.debian.org/images/cloud/bookworm/20250703-2162/debian-12-genericcloud-amd64-20250703-2162.qcow2"
-    file_name          = "debian-12-genericcloud-amd64-for_openbao.qcow2"
-    checksum           = "da702efced2cd98017790d0e00fee81f1e1404d3f990a4741f52e6f18bde9856d37799c053b3baa48805048a595d2a6a13c41b8287ec6f76ec27b7ef1b67a215"
+    url                = "https://cloud.debian.org/images/cloud/trixie/20250811-2201/debian-13-genericcloud-amd64-20250811-2201.qcow2"
+    file_name          = "debian-13-genericcloud-amd64-for_openbao.qcow2"
+    checksum           = "3a49caa6824dc4d567ab604ebddba34dfd3224b972ee6d10703e31f32d0262ae87d775fb8a952e3f0938962d316ce2f228ae52a8732bbe4def7869dd1b5e4e33"
     checksum_algorithm = "sha512"
   }
 }

@@ -1,22 +1,28 @@
 ui            = true
 
-# The address for this node to receive intra-cluster traffic.
+# The address for this node to receive intra-cluster traffic from other nodes.
+# The TLS certificate is managed internally.
 cluster_addr  = "https://127.0.0.1:8201"
 
-# The address for this node to receive external traffic.
-api_addr      = "https://127.0.0.1:8200"
+# The address for this node to receive external traffic should other nodes
+# be unable to internally forward requests.
+api_addr      = "https://operator.openbao.internal.jackie.gg:8200"
 
 listener "tcp" {
-  address         = "127.0.0.1:8200"
+  address         = "operator.openbao.internal.jackie.gg:8200"
 
   # To reload, run 'sudo pkill -HUP openbao'
   tls_cert_file = "/homelab/openbao/tls/openbao-node.bundle.pem"
   tls_key_file  = "/homelab/openbao/tls/openbao-node.key"
+  tls_cipher_suites = "TLS_CHACHA20_POLY1305_SHA256"
 }
 
 storage "raft" {
   path    = "/homelab/storage/openbao/data"
-  node_id = "openbao_ops"
+
+  # Note: If the operator ever becomes an HA cluster, need to make this unique
+  # per node.
+  node_id = "openbao_operator"
 }
 
 # telemetry {
