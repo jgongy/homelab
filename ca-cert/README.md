@@ -5,8 +5,8 @@ Files used for generating an internal root certificate authority certificate.
 ## Generating the root/ca.key and intermediate/ca.key
 
 ```
-openssl genpkey -aes256 -algorithm ed25519 -out root/ca.key
-openssl genpkey -aes256 -algorithm ed25519 -out intermediate/ca.key
+openssl genpkey -aes256 -algorithm rsa -out root/ca.key
+openssl genpkey -aes256 -algorithm rsa -out intermediate/ca.key
 ```
 
 ## Generating and viewing the root and intermediate certificates
@@ -21,7 +21,7 @@ openssl req                  \
     -sha512                  \
     -x509                    \
     -extensions v3_ca        \
-    -subj "/C=US/ST=New York/L=New York/O=Homelab/OU=Homelab CA/CN=Root Certificate" \
+    -subj "/C=US/ST=New York/L=New York/O=Homelab/OU=Homelab CA/CN=Homelab Root Certificate" \
     -out root/ca.crt
 ```
 
@@ -32,7 +32,7 @@ openssl req                          \
     -new                             \
     -key intermediate/ca.key         \
     -sha512                          \
-    -subj "/C=US/ST=New York/L=New York/O=Homelab/OU=Homelab CA/CN=Intermediate Certificate Authority" \
+    -subj "/C=US/ST=New York/L=New York/O=Homelab/OU=Homelab CA/CN=Homelab Intermediate Certificate Authority" \
     -out intermediate/ca.csr
 ```
 
@@ -57,6 +57,10 @@ openssl x509 -in root/ca.crt -text
 ### Verify
 ```
 openssl verify -CAfile root/ca.crt intermediate/ca.crt
+```
+### Verify intermediate chain
+```
+openssl verify -CAfile root/ca.crt -untrusted intermediate/ca.crt ../openbao/certificates/openbao-operator-00.crt
 ```
 
 ### Add root certificate to Debian VM
