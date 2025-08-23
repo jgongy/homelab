@@ -18,5 +18,5 @@ secrets/
 
 *.swp
 ca.key
-node*.key
-operator*.key
+cluster.key
+operator.key

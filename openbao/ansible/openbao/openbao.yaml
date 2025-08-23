@@ -5,6 +5,8 @@
 
   vars_files:
     - vars.yaml
+  vars:
+    type: "{{'operator' if 'operators' in group_names else 'cluster' }}"
 
   tasks:
     - name: Install packages needed for OpenBao
@@ -57,7 +59,7 @@
     - name: Copy the TLS certificate key
       become: true
       ansible.builtin.copy:
-        src: "../../certificates/{{ inventory_hostname }}.key"
+        src: "../../certificates/{{ type }}.key"
         dest: "/homelab/openbao/tls/openbao-node.key"
         owner: openbao
         group: openbao
@@ -66,7 +68,7 @@
     - name: Copy the TLS certificate bundle
       become: true
       ansible.builtin.copy:
-        src: "../../certificates/openbao-{{ inventory_hostname }}.bundle.pem"
+        src: "../../certificates/openbao-{{ type }}.bundle.pem"
         dest: "/homelab/openbao/tls/openbao-node.bundle.pem"
         owner: openbao
         group: openbao
