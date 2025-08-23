@@ -1,5 +1,5 @@
 module "debian" {
-  source = "../../tofu/vm/cloud-init"
+  source = "../../opentofu/vm/cloud-init"
 
   providers = {
     proxmox = proxmox
