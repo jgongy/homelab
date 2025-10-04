@@ -10,6 +10,22 @@
       VAULT_ADDR: "https://{{ ansible_host }}:8200"
 
   tasks:
+    - name: Set authorized key for OPNSense to upload TLS certificate.
+      become: true
+      ansible.posix.authorized_key:
+        user: debian
+        state: present
+        key: "{{ lookup('file', '../../configs/opnsense_authorized_key.pub') }}"
+
+    - name: Create TLS directory for OPNSense certificates.
+      become: true
+      ansible.builtin.file:
+        path: "/etc/opnsense/tls"
+        state: directory
+        owner: debian
+        group: debian
+        mode: "0755"
+
     - name: Copy the config file to the remote machine
       become: true
       ansible.builtin.copy:
@@ -18,6 +34,32 @@
         owner: openbao
         group: openbao
         mode: "0644"
+
+    - name: Lookup the certificate file
+      become: true
+      ansible.builtin.stat:
+        path: "/etc/opnsense/tls/operator.openbao.internal.jackie.gg/fullchain.pem"
+      register: certificate_file_status
+
+    - name: Lookup the certificate key
+      become: true
+      ansible.builtin.stat:
+        path: "/etc/opnsense/tls/operator.openbao.internal.jackie.gg/key.pem"
+      register: certificate_key_status
+
+    - name: Wait for the TLS certificate to exist
+      ansible.builtin.wait_for:
+        path: "/etc/opnsense/tls/operator.openbao.internal.jackie.gg/fullchain.pem"
+        state: present
+        timeout: 300 # Maximum number of seconds to wait
+      when: not certificate_file_status.stat.exists
+
+    - name: Wait for the TLS certificate key to exist
+      ansible.builtin.wait_for:
+        path: "/etc/opnsense/tls/operator.openbao.internal.jackie.gg/key.pem"
+        state: present
+        timeout: 300 # Maximum number of seconds to wait
+      when: not certificate_key_status.stat.exists
 
     - name: Start OpenBao
       become: true
@@ -57,6 +99,8 @@
     # If missing the GPG key from keybase, need to retrieve from keybase.io
     # and import via 'gpg --import /tmp/keybase.gpg' where the file contains
     # private key.
+    # Need to call `export GPG_TTY=$(tty)` in the same terminal the playbook is
+    # being run in.
     - name: Decode unseal key
       delegate_to: localhost
       # TODO: Investigate if there is a good way to provide the passphrase to

@@ -55,21 +55,3 @@
         owner: openbao
         group: openbao
         mode: "0755"
-
-    - name: Copy the TLS certificate key
-      become: true
-      ansible.builtin.copy:
-        src: "../../certificates/{{ type }}.key"
-        dest: "/homelab/openbao/tls/openbao-node.key"
-        owner: openbao
-        group: openbao
-        mode: "0644"
-
-    - name: Copy the TLS certificate bundle
-      become: true
-      ansible.builtin.copy:
-        src: "../../certificates/openbao-{{ type }}.bundle.pem"
-        dest: "/homelab/openbao/tls/openbao-node.bundle.pem"
-        owner: openbao
-        group: openbao
-        mode: "0644"
