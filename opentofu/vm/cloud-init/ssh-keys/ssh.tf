@@ -1,5 +1,5 @@
 data "local_file" "authorized_keys" {
-  filename = pathexpand("~/.ssh/authorized_keys")
+  filename = pathexpand("~/.ssh/remote_ssh_authorized_keys")
 }
 
 locals {
@@ -16,6 +16,6 @@ locals {
 
 output "parsed_ssh_keys" {
   value = local.ssh_keys
-  description = "List of parsed SSH public keys from authorized_keys."
+  description = "List of parsed SSH public keys."
 }
 
