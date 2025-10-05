@@ -10,22 +10,6 @@
       VAULT_ADDR: "https://{{ ansible_host }}:8200"
 
   tasks:
-    - name: Set authorized key for OPNSense to upload TLS certificate.
-      become: true
-      ansible.posix.authorized_key:
-        user: debian
-        state: present
-        key: "{{ lookup('file', '../../configs/opnsense_authorized_key.pub') }}"
-
-    - name: Create TLS directory for OPNSense certificates.
-      become: true
-      ansible.builtin.file:
-        path: "/etc/opnsense/tls"
-        state: directory
-        owner: debian
-        group: debian
-        mode: "0755"
-
     - name: Copy the config file to the remote machine
       become: true
       ansible.builtin.copy:
@@ -34,32 +18,6 @@
         owner: openbao
         group: openbao
         mode: "0644"
-
-    - name: Lookup the certificate file
-      become: true
-      ansible.builtin.stat:
-        path: "/etc/opnsense/tls/operator.openbao.internal.jackie.gg/fullchain.pem"
-      register: certificate_file_status
-
-    - name: Lookup the certificate key
-      become: true
-      ansible.builtin.stat:
-        path: "/etc/opnsense/tls/operator.openbao.internal.jackie.gg/key.pem"
-      register: certificate_key_status
-
-    - name: Wait for the TLS certificate to exist
-      ansible.builtin.wait_for:
-        path: "/etc/opnsense/tls/operator.openbao.internal.jackie.gg/fullchain.pem"
-        state: present
-        timeout: 300 # Maximum number of seconds to wait
-      when: not certificate_file_status.stat.exists
-
-    - name: Wait for the TLS certificate key to exist
-      ansible.builtin.wait_for:
-        path: "/etc/opnsense/tls/operator.openbao.internal.jackie.gg/key.pem"
-        state: present
-        timeout: 300 # Maximum number of seconds to wait
-      when: not certificate_key_status.stat.exists
 
     - name: Start OpenBao
       become: true
@@ -112,7 +70,7 @@
       # Ansible does not handle the decoded input as standard input well.
       ansible.builtin.shell: |
         set -o pipefail
-        cat "/tmp/{{ inventory_hostname }}_unseal_or_recovery.txt" | base64 --decode | gpg --decrypt
+        cat "{{ vars.secrets_dir }}/{{ inventory_hostname }}_unseal_or_recovery.txt" | base64 --decode | gpg --decrypt
       register: decrypted_unseal_key
       changed_when: false
       # Exit code of 2 means the node is still sealed
@@ -138,7 +96,7 @@
 
     - name: Retrieve the root token
       ansible.builtin.set_fact:
-        vault_token: "{{ lookup('file', '/tmp/{{ inventory_hostname }}_root_token.txt') }}"
+        vault_token: "{{ lookup('file', '{{ vars.secrets_dir }}/{{ inventory_hostname }}_root_token.txt') }}"
       when: is_unsealed.rc == 2
 
     - name: Enable Transit secrets engine
@@ -193,6 +151,6 @@
       delegate_to: localhost
       ansible.builtin.copy:
         content: "{{ autounseal_token.stdout }}"
-        dest: /tmp/cluster_autounseal.txt
+        dest: "{{ vars.secrets_dir }}/cluster_autounseal.txt"
         mode: "0644"
       changed_when: transit_engine_enabled.changed

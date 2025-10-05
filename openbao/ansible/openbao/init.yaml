@@ -34,19 +34,19 @@
   delegate_to: localhost
   ansible.builtin.copy:
     content: "{{ bao_init }}"
-    dest: "/tmp/{{ inventory_hostname }}_init_output.txt"
+    dest: "{{ vars.secrets_dir }}/{{ inventory_hostname }}_init_output.txt"
     mode: "0644"
 
 - name: Store unseal or recovery token
   delegate_to: localhost
   ansible.builtin.copy:
     content: "{{ unseal_or_recovery_token }}"
-    dest: /tmp/{{ inventory_hostname }}_unseal_or_recovery.txt
+    dest: "{{ vars.secrets_dir }}/{{ inventory_hostname }}_unseal_or_recovery.txt"
     mode: "0644"
 
 - name: Store initial root token
   delegate_to: localhost
   ansible.builtin.copy:
     content: "{{ root_token }}"
-    dest: /tmp/{{ inventory_hostname }}_root_token.txt
+    dest: "{{ vars.secrets_dir }}/{{ inventory_hostname }}_root_token.txt"
     mode: "0644"

@@ -12,8 +12,8 @@ listener "tcp" {
   address         = "operator.openbao.internal.jackie.gg:8200"
 
   # To reload, run 'sudo pkill -HUP openbao'
-  tls_cert_file = "/etc/opnsense/tls/operator.openbao.internal.jackie.gg/fullchain.pem"
-  tls_key_file  = "/etc/opnsense/tls/operator.openbao.internal.jackie.gg/key.pem"
+  tls_cert_file = "/homelab/openbao/tls/opnsense/operator.openbao.internal.jackie.gg/fullchain.pem"
+  tls_key_file  = "/homelab/openbao/tls/opnsense/operator.openbao.internal.jackie.gg/key.pem"
   # tls_cipher_suites = "TLS_CHACHA20_POLY1305_SHA256"
 }
 

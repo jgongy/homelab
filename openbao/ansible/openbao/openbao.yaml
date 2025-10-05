@@ -5,8 +5,10 @@
 
   vars_files:
     - vars.yaml
+
   vars:
-    type: "{{'operator' if 'operators' in group_names else 'cluster' }}"
+    openbao_tls_directory: "/homelab/openbao/tls"
+    opnsense_tls_directory: "/homelab/openbao/tls/opnsense"
 
   tasks:
     - name: Install packages needed for OpenBao
@@ -47,11 +49,57 @@
         state: directory
         mode: "0755"
 
-    - name: Create TLS directory for certificates and keys
+    - name: Set authorized key for OPNSense to upload TLS certificate
+      become: true
+      ansible.posix.authorized_key:
+        user: admin
+        state: present
+        key: "{{ lookup('file', '../../configs/opnsense_authorized_key.pub') }}"
+
+    - name: Create TLS directory for OpenBao
       become: true
       ansible.builtin.file:
-        path: "/homelab/openbao/tls/"
+        path: "{{ vars.openbao_tls_directory }}"
         state: directory
         owner: openbao
         group: openbao
         mode: "0755"
+
+    - name: Create TLS directory for OPNSense certificates
+      become: true
+      ansible.builtin.file:
+        path: "{{ vars.opnsense_tls_directory }}"
+        state: directory
+        owner: admin
+        group: openbao
+        mode: "02750" # New files created in this directory will have group set
+
+    - name: Set cert_type based on group membership
+      ansible.builtin.set_fact:
+        cert_type: "{{ 'operator.' if 'operators' in group_names else '' }}"
+
+    - name: Lookup the certificate file
+      become: true
+      ansible.builtin.stat:
+        path: "{{ vars.opnsense_tls_directory }}/{{ cert_type }}openbao.internal.jackie.gg/fullchain.pem"
+      register: certificate_file_status
+
+    - name: Lookup the certificate key
+      become: true
+      ansible.builtin.stat:
+        path: "{{ vars.opnsense_tls_directory }}/{{ cert_type }}openbao.internal.jackie.gg/key.pem"
+      register: certificate_key_status
+
+    - name: Wait for the TLS certificate to exist
+      ansible.builtin.wait_for:
+        path: "{{ vars.opnsense_tls_directory }}/{{ cert_type }}openbao.internal.jackie.gg/fullchain.pem"
+        state: present
+        timeout: 300 # Maximum number of seconds to wait
+      when: not certificate_file_status.stat.exists
+
+    - name: Wait for the TLS certificate key to exist
+      ansible.builtin.wait_for:
+        path: "{{ vars.opnsense_tls_directory }}/{{ cert_type }}openbao.internal.jackie.gg/key.pem"
+        state: present
+        timeout: 300 # Maximum number of seconds to wait
+      when: not certificate_key_status.stat.exists

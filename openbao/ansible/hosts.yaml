@@ -15,4 +15,4 @@ nodes:
 operators:
   hosts:
     operator-00:
-      ansible_host: operator-00.openbao.internal.jackie.gg
+      ansible_host: operator-00.operator.openbao.internal.jackie.gg

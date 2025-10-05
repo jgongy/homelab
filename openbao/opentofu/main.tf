@@ -123,7 +123,7 @@ module "debian" {
   }
 
   image = {
-    username           = "debian"
+    username           = "admin"
     datastore          = "local"
 
     content_type       = "import"
