@@ -39,6 +39,7 @@ module "debian" {
         size      = 8 # in GiB
       }
     }
+
     "technitium-01" = {
       host_node    = "beelink-eq14-1"
       description  = "Technitium Instance"
@@ -69,12 +70,12 @@ module "debian" {
   }
 
   image = {
-    username           = "debian"
+    username           = "admin"
     datastore          = "local"
 
     content_type       = "import"
     url                = "https://cloud.debian.org/images/cloud/trixie/20250811-2201/debian-13-genericcloud-amd64-20250811-2201.qcow2"
-    file_name          = "debian-13-genericcloud-amd64-for_openbao.qcow2"
+    file_name          = "debian-13-genericcloud-amd64-for_technitium.qcow2"
     checksum           = "3a49caa6824dc4d567ab604ebddba34dfd3224b972ee6d10703e31f32d0262ae87d775fb8a952e3f0938962d316ce2f228ae52a8732bbe4def7869dd1b5e4e33"
     checksum_algorithm = "sha512"
   }
