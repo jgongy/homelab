@@ -19,3 +19,28 @@
       # The script itself checks when Technitium is installed so should be safe
       # to run every time.
       changed_when: true
+
+    - name: Create user for MySQL query Logs
+      become: true
+      community.mysql.mysql_user:
+        name: "technitium"
+        host: "%"
+        password: "technitium-password"
+        priv: "DnsQueryLogs.*:ALL"
+        state: present
+        login_unix_socket: /run/mysqld/mysqld.sock
+        column_case_sensitive: true
+      vars:
+        ansible_python_interpreter: "{{ venv_path }}/bin/python{{ python_version }}"
+
+    # Need to manually install `Query Logs (MySQL)` in `Apps` > `App Store`
+    # and set the config to be:
+    # {
+    #   "enableLogging": true,
+    #   "maxQueueSize": 1000000,
+    #   "maxLogDays": 14,
+    #   "maxLogRecords": 10000,
+    #   "databaseName": "DnsQueryLogs",
+    #   "connectionString": "Server=127.0.0.1; Port=3306; Uid=technitium; Pwd=technitium-password;"
+    # }
+    # and set the DNS block list to `Hagezi PRO`.

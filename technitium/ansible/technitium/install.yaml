@@ -15,13 +15,23 @@
         update_cache: true
       vars:
         packages:
-          - qemu-guest-agent
           - dnsutils
           - mariadb-server
+          # - default-mysql-client
+          - python{{ python_version }}
+          - python{{ python_version }}-venv
+          - python3-packaging
 
-    - name: Start QEMU Guest Agent
-      become: true
-      ansible.builtin.service:
-        name: qemu-guest-agent
-        state: "started"
-        enabled: true
+    - name: Create virtual environment
+      ansible.builtin.command:
+        cmd: "python{{ python_version }} -m venv {{ venv_path }}"
+        creates: "{{ venv_path }}/bin/activate"
+
+    - name: Install packages into the virtual environment
+      ansible.builtin.pip:
+        name: "{{ packages }}"
+        virtualenv: "{{ venv_path }}"
+        state: present
+      vars:
+        packages:
+          - "PyMySQL=={{ pymysql_version }}"
