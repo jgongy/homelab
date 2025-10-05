@@ -42,12 +42,12 @@ module "debian" {
   }
 
   image = {
-    username           = "debian"
+    username           = "admin"
     datastore          = "local"
 
     content_type       = "import"
     url                = "https://cloud.debian.org/images/cloud/bookworm/20250703-2162/debian-12-genericcloud-amd64-20250703-2162.qcow2"
-    file_name          = "debian-12-genericcloud-amd64-for_openbao.qcow2"
+    file_name          = "debian-12-genericcloud-amd64-for_haproxy.qcow2"
     checksum           = "da702efced2cd98017790d0e00fee81f1e1404d3f990a4741f52e6f18bde9856d37799c053b3baa48805048a595d2a6a13c41b8287ec6f76ec27b7ef1b67a215"
     checksum_algorithm = "sha512"
   }
