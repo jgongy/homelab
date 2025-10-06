@@ -39,6 +39,15 @@ variable "nodes" {
     })
 
     tags          = optional(list(string), [])
+
+    additional_network_device = optional(list(object({
+      gateway     = string
+      vlan        = number
+      bridge      = string
+      ip_address  = string
+      ip_mask     = number
+    })), [])
+
   }))
 }
 
@@ -56,4 +65,3 @@ variable "image" {
     checksum_algorithm = optional(string, "")
   })
 }
-

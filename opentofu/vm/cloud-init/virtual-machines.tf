@@ -28,6 +28,18 @@ resource "proxmox_virtual_environment_vm" "this" {
         address = "dhcp"
       }
     }
+    dynamic "ip_config" {
+      for_each = each.value.additional_network_device
+      content {
+        ipv4 {
+          address = "${ip_config.value.ip_address}/${ip_config.value.ip_mask}"
+          gateway = ip_config.value.gateway
+        }
+        ipv6 {
+          address = "dhcp"
+        }
+      }
+    }
     user_account {
       username = var.image.username
       keys     = module.ssh_keys.parsed_ssh_keys
@@ -63,5 +75,13 @@ resource "proxmox_virtual_environment_vm" "this" {
   network_device {
     bridge  = var.network.bridge
     vlan_id = var.network.vlan
+  }
+
+  dynamic "network_device" {
+    for_each = each.value.additional_network_device
+    content {
+      bridge = network_device.value.bridge
+      vlan_id = network_device.value.vlan
+    }
   }
 }
