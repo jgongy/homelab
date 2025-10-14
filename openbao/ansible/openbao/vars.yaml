@@ -1,1 +1,5 @@
+---
 secrets_dir: "../../../secrets/openbao"
+cluster_url: "https://openbao.internal.jackie.gg"
+openbao_tls_directory: "/homelab/openbao/tls"
+ca_cert_dir: "../../../ca-cert"

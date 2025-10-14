@@ -7,8 +7,8 @@
     - vars.yaml
 
   vars:
-    openbao_tls_directory: "/homelab/openbao/tls"
     opnsense_tls_directory: "/homelab/openbao/tls/opnsense"
+    openbao_version: "2.4.1"
 
   tasks:
     - name: Install packages needed for OpenBao
@@ -27,11 +27,20 @@
         path: "/usr/bin/bao"
       register: openbao_binary
 
-    - name: Install OpenBao if not installed
+    - name: Retrieve OpenBao binary version
+      ansible.builtin.command: "bao version | grep 'OpenBao' | head -n 1 | awk '{print $2}'"
+      changed_when: false
+      when: openbao_binary.stat.exists
+      register: current_openbao_version
+
+    - name: Install OpenBao
       become: true
       ansible.builtin.apt:
-        deb: "https://github.com/openbao/openbao/releases/download/v2.3.1/bao_2.3.1_linux_amd64.deb"
-      when: not openbao_binary.stat.exists
+        deb: "https://github.com/openbao/openbao/releases/download/v{{ vars.openbao_version }}/bao_{{ vars.openbao_version }}_linux_amd64.deb"
+      when: not openbao_binary.stat.exists or current_openbao_version.stdout != "v" ~ vars.openbao_version
+
+    # TODO: Automate the version upgrade by restarting each machine in the
+    # cluster starting with the standby nodes and then the active.
 
     - name: Create data directory
       become: true
@@ -62,8 +71,8 @@
         path: "{{ vars.openbao_tls_directory }}"
         state: directory
         owner: openbao
-        group: openbao
-        mode: "0755"
+        group: admin
+        mode: "0775"
 
     - name: Create TLS directory for OPNSense certificates
       become: true

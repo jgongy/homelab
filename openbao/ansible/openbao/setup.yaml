@@ -1,0 +1,143 @@
+---
+- name: "Set up the OpenBao cluster"
+  hosts: nodes[0]
+  gather_facts: true
+
+  vars_files:
+    - vars.yaml
+  vars:
+    pki_path: "pki"
+    cert_file_name: "openbao-intermediate-ca.crt"
+
+  tasks:
+    - name: Retrieve the root token from the initialization
+      ansible.builtin.set_fact:
+        root_token: "{{ lookup('file', '{{ vars.secrets_dir }}/node-00_root_token.txt') }}"
+
+    - name: Pause for 5 seconds to allow the OpenBao cluster to unseal
+      ansible.builtin.pause:
+        seconds: 5
+
+    - name: Retrieve the OpenBao mounts
+      ansible.builtin.command:
+        argv:
+          - "bao"
+          - "read"
+          - "-format=json"
+          - "sys/mounts/"
+      environment:
+        VAULT_ADDR: "{{ vars.cluster_url }}"
+        VAULT_TOKEN: "{{ root_token }}"
+      register: mount_read
+      changed_when: false
+
+    - name: Check if the PKI mount exists
+      ansible.builtin.set_fact:
+        pki_exists: "{{ (pki_path ~ '/') in mounts }}"
+      vars:
+        mounts: "{{ mount_read.stdout | from_json | community.general.json_query(query) }}"
+        query: "data | keys(@)"
+
+    - name: Enable the PKI secrets engine
+      ansible.builtin.command:
+        argv:
+          - "bao"
+          - "secrets"
+          - "enable"
+          - "-path={{ vars.pki_path }}"
+          - "-description='{{ description }}'"
+          - "pki"
+      vars:
+        description: "Internal intermediate certificate authority"
+      environment:
+        VAULT_ADDR: "{{ vars.cluster_url }}"
+        VAULT_TOKEN: "{{ root_token }}"
+      register: output
+      changed_when: output.rc == 0
+      when: not pki_exists
+
+    - name: Tune the PKI secrets engine
+      ansible.builtin.command:
+        argv:
+          - "bao"
+          - "secrets"
+          - "tune"
+          - "-max-lease-ttl=43800h"
+          - "{{ vars.pki_path }}"
+      environment:
+        VAULT_ADDR: "{{ vars.cluster_url }}"
+        VAULT_TOKEN: "{{ root_token }}"
+      register: output
+      changed_when: output.rc == 0
+
+    - name: Set the OpenBao CA and CRL URL endpoints
+      ansible.builtin.command:
+        argv:
+          - "bao"
+          - "write"
+          - "{{ vars.pki_path }}/config/urls"
+          - "issuing_certificates=https://openbao.internal.jackie.gg/v1/pki/ca"
+          - "crl_distribution_points=https://openbao.internal.jackie.gg/v1/pki/crl"
+      environment:
+        VAULT_ADDR: "{{ vars.cluster_url }}"
+        VAULT_TOKEN: "{{ root_token }}"
+      register: output
+      changed_when: output.rc == 0
+
+    - name: Create the intermediate CA CSR for OpenBao
+      ansible.builtin.command:
+        argv:
+          - "bao"
+          - "write"
+          - "-format=json"
+          - "{{ vars.pki_path }}/intermediate/generate/internal"
+          - "common_name='OpenBao Internal Intermediate CA'"
+          - "add_basic_constraints=true"
+          - "ttl=43800h"
+      environment:
+        VAULT_ADDR: "{{ vars.cluster_url }}"
+        VAULT_TOKEN: "{{ root_token }}"
+      register: csr_output
+      changed_when: csr_output.rc == 0
+      when: not pki_exists
+
+    - name: Retrieve the CSR output
+      ansible.builtin.set_fact:
+        csr: "{{ csr_output.stdout | from_json | community.general.json_query(query) }}"
+      vars:
+        query: "data.csr"
+      when: not pki_exists
+
+    - name: Retrieve the intermediate CA private key passphrase.
+      ansible.builtin.set_fact:
+        intermediate_ca_privatekey_passphrase: lookup('community.sops.sops', '{{ vars.ca_cert_dir }}/secrets.sops.yaml',
+          extract='[\"internal_intermediate_ca_key_passphrase\"]')
+      when: not pki_exists
+
+    - name: Sign the intermediate CSR
+      community.crypto.x509_certificate:
+        path: "{{ vars.openbao_tls_directory }}/{{ cert_file_name }}"
+        csr_content: "{{ csr }}"
+        ownca_content: "{{ lookup('file', '{{ vars.ca_cert_dir }}/intermediate/ca.crt') }}"
+        ownca_privatekey_content: "{{ lookup('file', '{{ vars.ca_cert_dir }}/intermediate/ca.key') }}"
+        ownca_privatekey_passphrase: "{{ intermediate_ca_privatekey_passphrase }}"
+        provider: ownca
+        # owner: "openbao"
+        # group: "openbao"
+      when: not pki_exists
+
+    - name: Write the signed intermediate certificate bundle back to OpenBao
+      ansible.builtin.command:
+        argv:
+          - "bao"
+          - "write"
+          - "{{ vars.pki_path }}/intermediate/set-signed"
+          - "certificate=@{{ vars.openbao_tls_directory }}/{{ cert_file_name }}"
+      environment:
+        VAULT_ADDR: "{{ vars.cluster_url }}"
+        VAULT_TOKEN: "{{ root_token }}"
+      changed_when: true
+      when: not pki_exists
+
+    # TODO
+    # - name: Set roles for who can request certificates

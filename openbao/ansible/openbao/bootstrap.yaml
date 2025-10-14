@@ -7,3 +7,6 @@
 
 - name: Initialize the OpenBao cluster
   import_playbook: nodes.yaml
+
+- name: Set up the OpenBao cluster
+  import_playbook: setup.yaml
